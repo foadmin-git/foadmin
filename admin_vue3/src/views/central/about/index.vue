@@ -18,7 +18,7 @@
           <el-link href="https://www.foadmin.com" target="_blank">https://www.foadmin.com</el-link>
         </el-descriptions-item>
         <el-descriptions-item label="文档地址">
-          <el-link href="https://docs.foadmin.com" target="_blank">https://docs.foadmin.com</el-link>
+          <el-link href="https://www.foadmin.com/docs" target="_blank">https://www.foadmin.com/docs</el-link>
         </el-descriptions-item>
         <el-descriptions-item label="版权信息">© 2025 厦门市知序技术服务工作室</el-descriptions-item>
       </el-descriptions>
