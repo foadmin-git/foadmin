@@ -1,36 +1,14 @@
-# Foadmin
+Foadmin
 
-#### Description
-Foadmin 是一款现代化的企业级后台管理系统，基于 Vue 3 和 Python FastAPI 构建。 我们致力于为开发者提供高效、灵活、易用的管理后台解决方案。
+Introduction
 
-#### Software Architecture
-Software architecture description
+Foadmin is a modern enterprise-level backend management system built on Vue 3 and Python FastAPI. We aim to provide developers with an efficient, flexible, and easy-to-use backend solution.
 
-#### Installation
+Installation Guide
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+For detailed deployment instructions, please visit: Foadmin Docs
 
-#### Instructions
+User Guide
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### Contribution
-
-1.  Fork the repository
-2.  Create Feat_xxx branch
-3.  Commit your code
-4.  Create Pull Request
-
-
-#### Gitee Feature
-
-1.  You can use Readme\_XXX.md to support different languages, such as Readme\_en.md, Readme\_zh.md
-2.  Gitee blog [blog.gitee.com](https://blog.gitee.com)
-3.  Explore open source project [https://gitee.com/explore](https://gitee.com/explore)
-4.  The most valuable open source project [GVP](https://gitee.com/gvp)
-5.  The manual of Gitee [https://gitee.com/help](https://gitee.com/help)
-6.  The most popular members  [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+For the development documentation, please visit: Foadmin Docs
+![输入图片说明](image.png)
