@@ -1,0 +1,20 @@
+<script setup>
+import { getCurrentInstance } from 'vue'
+import { mediaFiles } from '@/api/media'
+
+const { appContext } = getCurrentInstance()
+const pick = appContext.config.globalProperties.$pickMedia
+
+async function chooseCover(){
+  const files = await pick({ selectMode: 'single' }).catch(()=>[])
+  if(!files?.length) return
+  const f = files[0]
+  const url = mediaFiles.previewUrl(f.id)
+  // TODO: 将 url 保存到你的表单/字段
+  console.log('picked:', f, 'preview:', url)
+}
+</script>
+
+<template>
+  <el-button @click="chooseCover">选择封面</el-button>
+</template>
