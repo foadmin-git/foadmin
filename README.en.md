@@ -6,7 +6,7 @@ Foadmin is a modern enterprise-level backend management system built on Vue 3 an
 
 Installation Guide
 
-For detailed deployment instructions, please visit: Foadmin Docs
+[For detailed deployment instructions, please visit: Foadmin Docs](http://https://www.foadmin.com/docs)
 
 User Guide
 
