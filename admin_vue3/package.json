@@ -1,0 +1,32 @@
+{
+  "name": "foadmin",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@wangeditor/editor": "^5.1.23",
+    "@wangeditor/editor-for-vue": "^5.1.12",
+    "axios": "^1.11.0",
+    "echarts": "^5.6.0",
+    "element-plus": "^2.10.3",
+    "mammoth": "^1.10.0",
+    "pdfjs-dist": "^5.4.54",
+    "ua-parser-js": "^2.0.4",
+    "vue": "^3.5.17",
+    "vue-echarts": "^7.0.3",
+    "vue-router": "^4.5.1"
+    , "vue3-slide-verify": "^1.1.8"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.3.2",
+    "vite": "^7.0.0"
+  }
+}
