@@ -25,10 +25,10 @@ Foadmin 是一款现代化的企业级后台管理系统，基于 Vue 3 和 Pyth
 
 #### 安装教程
 
-具体部署教程：https://www.foadmin/docs
+具体部署教程：https://www.foadmin.com/docs
 
 #### 使用说明
 
-开发文档：https://www.foadmin/docs
+开发文档：https://www.foadmin.com/docs
 
 ![输入图片说明](image.png)
