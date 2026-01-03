@@ -20,12 +20,13 @@
       @mouseup="stopDrag"
       @mouseleave="stopDrag"
     >
-      <div
+        <div
         v-for="(tab, i) in tabsList"
         :key="tab.path"
         @click="activate(tab)"
         class="flex items-center justify-between px-3 py-1 mr-2 border rounded whitespace-nowrap cursor-pointer"
-        :class="activeTab.path === tab.path ? 'border border-[#0031ff] text-[#0031ff]' : 'border-gray-300'"
+        :class="activeTab.path === tab.path ? '' : 'border-gray-300'"
+        :style="activeTab.path === tab.path ? { borderColor: activeColor, color: activeColor } : {}"
       >
         <span class="truncate">{{ tab.title }}</span>
         <span v-if="i !== 0" @click.stop="closeTab(i)" class="ml-2 inline-flex items-center">
@@ -38,13 +39,24 @@
     <button @click="scrollBy(200)" class="ml-2 hidden md:block">
       <el-icon><ArrowRight /></el-icon>
     </button>
+
+    <!-- 全屏切换按钮（桌面端） -->
+    <button @click="toggleFullscreen" class="ml-2 hidden md:block" title="切换全屏">
+      <el-icon><FullScreen /></el-icon>
+    </button>
+
+    <!-- 暗黑模式切换按钮（桌面端） -->
+    <button @click="toggleDarkMode" class="ml-2 hidden md:block" title="暗黑模式">
+      <el-icon v-if="isDark"><Sunny /></el-icon>
+      <el-icon v-else><Moon /></el-icon>
+    </button>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ArrowLeft, ArrowRight, Close, Menu } from '@element-plus/icons-vue'
+import { ArrowLeft, ArrowRight, Close, Menu, FullScreen, Moon, Sunny } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -105,6 +117,52 @@ function onDrag(e) {
   tabs.value.scrollLeft = scrollLeft + delta
 }
 function stopDrag() { isDrag = false }
+
+// ============ 新增：全屏与暗黑模式切换 ============
+// 暗黑模式开关状态
+const isDark = ref(false)
+// 当前主题下激活标签的高亮颜色：
+// 深色模式下使用用户指定的亮蓝色 #0093ff，
+// 浅色模式保持自定义深蓝色
+const activeColor = computed(() => (isDark.value ? '#0093ff' : '#0031ff'))
+
+// 切换暗黑模式：在 html 元素上添加或移除 class "dark"
+function toggleDarkMode() {
+  isDark.value = !isDark.value
+  const html = document.documentElement
+  if (isDark.value) {
+    html.classList.add('dark')
+    try {
+      localStorage.setItem('theme', 'dark')
+    } catch (e) { /* 忽略 */ }
+  } else {
+    html.classList.remove('dark')
+    try {
+      localStorage.setItem('theme', 'light')
+    } catch (e) { /* 忽略 */ }
+  }
+}
+
+// 尝试根据本地存储初始化暗黑模式状态
+onMounted(() => {
+  try {
+    const saved = localStorage.getItem('theme')
+    if (saved === 'dark') {
+      isDark.value = true
+      document.documentElement.classList.add('dark')
+    }
+  } catch (e) { /* 忽略 */ }
+})
+
+// 切换全屏模式
+function toggleFullscreen() {
+  const doc = document
+  if (!doc.fullscreenElement && doc.documentElement.requestFullscreen) {
+    doc.documentElement.requestFullscreen()
+  } else if (doc.exitFullscreen) {
+    doc.exitFullscreen()
+  }
+}
 
 /** 路由变化：只给业务路由建标签；若已存在则更新标题（修正首次为“未找到/站点标题”的情况） */
 watch(

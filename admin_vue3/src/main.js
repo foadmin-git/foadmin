@@ -6,6 +6,9 @@ import perm from './directives/perm'
 
 // Tailwind
 import './assets/css/tailwind.css'
+// Import dark theme overrides.  When the `<html>` element has a class
+// of `dark`, the styles in this file will apply to provide a dark mode.
+import './assets/css/dark.css'
 
 // Element Plus
 import ElementPlus from 'element-plus'

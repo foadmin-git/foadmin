@@ -4,7 +4,7 @@ import { ElMessage } from 'element-plus'
 import { userStore } from '@/store/user'
 
 const http = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE || 'https://你的服务端域名',
+  baseURL: import.meta.env.VITE_API_BASE || 'https://foadmin.sslphp.com',
   timeout: 15000
 })
 

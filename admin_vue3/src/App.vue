@@ -44,13 +44,31 @@ const isBlankLayout = computed(() => route.meta?.layout === 'blank')
 </script>
 <style>
 :root {
+  /* 定义 Element Plus 主题色为自定义深蓝，并覆盖其所有深浅变体 */
   --el-color-primary: #0031ff;
-  /* 以下是可选的深浅变体，按需调整 */
-  --el-color-primary-light-3: #dde1ff;
-  --el-color-primary-light-2: #b7bcff;
-  --el-color-primary-light-1: #8a96ff;
-  --el-color-primary-dark-1: #002ecc;
+  /* 逐步加白生成的浅色系列，用于按钮悬停、背景等场景 */
+  --el-color-primary-light-1: #1945ff;
+  --el-color-primary-light-2: #325aff;
+  --el-color-primary-light-3: #4c6efe;
+  --el-color-primary-light-4: #6583ff;
+  --el-color-primary-light-5: #7f98ff;
+  --el-color-primary-light-6: #99acff;
+  --el-color-primary-light-7: #b2c1ff;
+  --el-color-primary-light-8: #ccd5fe;
+  --el-color-primary-light-9: #e5eaff;
+  /* 加黑生成的深色系列，用于按下等状态 */
+  --el-color-primary-dark-1: #002ce5;
+  --el-color-primary-dark-2: #0027cc;
+  --el-color-primary-dark-3: #0022b2;
+  /* RGB 通用变量，用于 Element Plus 内部计算 */
+  --el-color-primary-rgb: 0, 49, 255;
 
+  /* Highlight color for the side navigation.  Use a CSS variable instead of
+     hard‑coding colors in components so that the color automatically
+     updates when the dark mode class is toggled on the <html> element.  In
+     the default (light) theme this matches the primary blue.  In dark mode
+     it is overridden in dark.css to a neutral dark gray (#3e4143). */
+  --nav-highlight-color: #0031ff;
 }
 /* 覆盖所有 primary 类型按钮的背景色 */
 .el-button--primary {

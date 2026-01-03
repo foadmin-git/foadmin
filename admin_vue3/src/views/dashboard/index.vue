@@ -163,7 +163,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue'
 import { 
   UserFilled, 
   Ticket, 
@@ -280,7 +280,8 @@ const filteredOrders = computed(() => {
 
 // ECharts 配置对象
 const salesTrendOption = ref({
-  backgroundColor: '#fff',
+  // 适配暗黑模式：统一使用透明背景，让容器继承背景色
+  backgroundColor: 'transparent',
   tooltip: { 
     trigger: 'axis',
     axisPointer: { type: 'shadow' }
@@ -319,7 +320,8 @@ const salesTrendOption = ref({
 })
 
 const regionOrderOption = ref({
-  backgroundColor: '#fff',
+  // 适配暗黑模式：统一使用透明背景，让容器继承背景色
+  backgroundColor: 'transparent',
   tooltip: { 
     trigger: 'axis',
     axisPointer: { type: 'shadow' }
@@ -370,7 +372,8 @@ const regionOrderOption = ref({
 })
 
 const categoryPieOption = ref({
-  backgroundColor: '#fff',
+  // 适配暗黑模式：统一使用透明背景，让容器继承背景色
+  backgroundColor: 'transparent',
   tooltip: { 
     trigger: 'item',
     formatter: '{a} <br/>{b}: {c} ({d}%)'
@@ -388,7 +391,8 @@ const categoryPieOption = ref({
       avoidLabelOverlap: false,
       itemStyle: {
         borderRadius: 10,
-        borderColor: '#fff',
+        // 暗黑模式下边框颜色改为页面背景色，避免白边
+        borderColor: '#232324',
         borderWidth: 2
       },
       label: {
@@ -419,7 +423,8 @@ const categoryPieOption = ref({
 
 // 新增柱图配置
 const categoryBarOption = ref({
-  backgroundColor: '#fff',
+  // 适配暗黑模式：统一使用透明背景，让容器继承背景色
+  backgroundColor: 'transparent',
   tooltip: { 
     trigger: 'axis',
     axisPointer: { type: 'shadow' }
@@ -463,7 +468,8 @@ const categoryBarOption = ref({
 })
 
 const statusBarOption = ref({
-  backgroundColor: '#fff',
+  // 适配暗黑模式：统一使用透明背景，让容器继承背景色
+  backgroundColor: 'transparent',
   tooltip: { 
     trigger: 'axis',
     axisPointer: { type: 'shadow' }
@@ -592,6 +598,75 @@ function fetchAllData() {
   
   updateTime()
 }
+
+// ============ 暗黑模式下的图表配色调整 ============
+// 读取本地存储判断是否为暗黑模式。使用 computed 而非在组件外部依赖
+// 这样在切换主题时可以立即反应。
+const isDark = computed(() => {
+  try {
+    return localStorage.getItem('theme') === 'dark'
+  } catch (e) {
+    return false
+  }
+})
+
+/**
+ * 根据当前主题为各图表调整轴线、文本和分割线颜色。
+ * 暗黑模式使用更深的颜色以匹配深色背景；浅色模式则维持原有亮色。
+ */
+function applyChartColors(dark) {
+  // 读取 CSS 变量以获取当前主题下的颜色，这样在不同主题下均能得到合适的对比度。
+  const rootStyle = getComputedStyle(document.documentElement)
+  // 如果变量未定义，则使用备选颜色。
+  const axisLineColor = rootStyle.getPropertyValue('--el-border-color').trim() || (dark ? '#555' : '#eee')
+  const axisLabelColor = rootStyle.getPropertyValue('--el-text-color-secondary').trim() || (dark ? '#aaa' : '#666')
+  const splitLineColor = rootStyle.getPropertyValue('--el-border-color-light').trim() || (dark ? '#333' : '#f5f5f5')
+  const legendTextColor = rootStyle.getPropertyValue('--el-text-color-regular').trim() || (dark ? '#aaa' : '#666')
+
+  // 销售趋势图
+  salesTrendOption.value.xAxis.axisLine.lineStyle.color = axisLineColor
+  salesTrendOption.value.xAxis.axisLabel.color = axisLabelColor
+  salesTrendOption.value.yAxis.axisLabel.color = axisLabelColor
+  salesTrendOption.value.yAxis.splitLine.lineStyle.color = splitLineColor
+
+  // 区域订单分布图
+  regionOrderOption.value.xAxis.axisLine.lineStyle.color = axisLineColor
+  regionOrderOption.value.xAxis.axisLabel.color = axisLabelColor
+  regionOrderOption.value.yAxis.axisLabel.color = axisLabelColor
+  regionOrderOption.value.yAxis.splitLine.lineStyle.color = splitLineColor
+
+  // 产品类别柱图
+  categoryBarOption.value.xAxis.axisLine.lineStyle.color = axisLineColor
+  categoryBarOption.value.xAxis.axisLabel.color = axisLabelColor
+  categoryBarOption.value.yAxis.axisLabel.color = axisLabelColor
+  categoryBarOption.value.yAxis.splitLine.lineStyle.color = splitLineColor
+
+  // 订单状态分布图
+  statusBarOption.value.xAxis.axisLine.lineStyle.color = axisLineColor
+  statusBarOption.value.xAxis.axisLabel.color = axisLabelColor
+  statusBarOption.value.yAxis.axisLabel.color = axisLabelColor
+  statusBarOption.value.yAxis.splitLine.lineStyle.color = splitLineColor
+
+  // 类别占比饼图：只需更新图例文本颜色
+  categoryPieOption.value.legend.textStyle.color = legendTextColor
+}
+
+// 在挂载时根据当前主题应用图表颜色，并监听 <html> class 变化以实时更新
+let themeObserver
+onMounted(() => {
+  // 应用当前主题
+  applyChartColors(document.documentElement.classList.contains('dark'))
+  // 监听 html 的 class 变化，检测 dark 类是否被添加或移除
+  themeObserver = new MutationObserver(() => {
+    const dark = document.documentElement.classList.contains('dark')
+    applyChartColors(dark)
+  })
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+})
+
+onBeforeUnmount(() => {
+  if (themeObserver) themeObserver.disconnect()
+})
 
 // 查看订单详情
 function viewOrderDetail(order) {

@@ -5,7 +5,8 @@
     <div class="w-20 border-r flex flex-col">
       <!-- Logo -->
       <div class="h-16 flex items-center justify-center">
-        <img :src="logo" alt="logo" class="h-12" />
+        <!-- 为暗黑模式定制：添加 logo-img 类以便暗黑模式下反相颜色 -->
+        <img :src="logo" alt="logo" class="h-12 logo-img" />
       </div>
 <hr></hr>
       <!-- 一级（顶级） -->
@@ -15,10 +16,11 @@
           :key="sec.key"
           @click="activateTop(sec)"
           :class="[
-            'cursor-pointer flex flex-col items-center py-4 transition-colors',
-            activeTop && isSameNode(activeTop, sec)
-              ? 'bg-[#0031ff] text-white'
-              : 'hover:bg-[#0031ff] hover:text-white'
+            'menu-item',
+            'cursor-pointer',
+            'flex flex-col items-center py-4 transition-colors',
+            // apply 'active' class when this top section is the current active one
+            { active: activeTop && isSameNode(activeTop, sec) }
           ]"
         >
           <component :is="resolveIcon(sec.icon)" class="h-6 w-6" />
@@ -56,7 +58,7 @@
             <li
               v-for="p in pinned"
               :key="p.path"
-              class="px-2 py-1 border rounded text-xs cursor-pointer hover:text-[#0031ff]"
+              class="pinned-item px-2 py-1 border rounded text-xs cursor-pointer"
               @click="go(p.path)"
             >
               {{ p.title }}
@@ -186,6 +188,19 @@ const topSections = computed(() =>
 const activeTop = ref(null)
 const openKeys = ref([])
 const keyword = ref('')
+
+// 暗黑模式状态：从 localStorage 读取当前主题，用于动态设置 hover/选中颜色
+const isDark = ref(false)
+onMounted(() => {
+  try {
+    const saved = localStorage.getItem('theme')
+    if (saved === 'dark') {
+      isDark.value = true
+    }
+  } catch (e) {
+    /* 忽略 */
+  }
+})
 
 /** 构建任意深度的 children 树，并在每一层用统一比较器排序 */
 function buildChildren(parentKey) {
@@ -376,4 +391,42 @@ function logout() {
 /* 深度选择器覆盖头像边框 */
 :deep(.el-avatar) { border: none !important; }
 :deep(.el-avatar:hover) { border: none !important; }
+
+  /*
+   * Top navigation items
+   * --------------------
+   * Use a CSS variable for the highlight color rather than hard‑coded values.
+   * The variable `--nav-highlight-color` is defined in :root in App.vue and
+   * overridden in dark.css when the `dark` class is present on <html>.  This
+   * approach allows the highlight color to update immediately when the
+   * theme toggles without requiring a page reload.
+   *
+   * The `.active` class is applied in the template when a top menu item
+   * corresponds to the current route.  Hovering over a non‑active item
+   * triggers the same visual styling via the `:hover` pseudo‑class.
+   */
+  .menu-item:hover,
+  .menu-item.active {
+    background-color: var(--nav-highlight-color);
+    color: #ffffff;
+  }
+
+  /* Ensure the nested <span> inherits the correct color for hover/active states */
+  .menu-item:hover span,
+  .menu-item.active span {
+    color: #ffffff;
+  }
+
+  /*
+   * Pinned items
+   * -----------
+   * These items appear in the "常用" section.  On hover, use the primary
+   * color defined by Element Plus variables (`--el-color-primary`) so that
+   * the hover accent follows the current theme (blue in light mode, bright
+   * blue in dark mode).  Using !important ensures this override beats
+   * Tailwind's text color classes.
+   */
+  .pinned-item:hover {
+    color: var(--el-color-primary) !important;
+  }
 </style>

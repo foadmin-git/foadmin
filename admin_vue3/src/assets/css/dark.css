@@ -1,0 +1,451 @@
+/* Dark mode overrides */
+
+/*
+ * This stylesheet defines color overrides that apply when the `dark` class
+ * is present on the `<html>` element.  We don't rely on Tailwind's built‑in
+ * dark mode because the project hasn't enabled it in the Tailwind
+ * configuration.  Instead, we selectively override some of the common
+ * background and text colors used throughout the admin interface.  If
+ * additional components need styling, you can extend this file with
+ * further selectors.
+ */
+
+/* Root text and background colors */
+html.dark {
+  color-scheme: dark;
+  /* Base background color for dark theme. Inspired by Arco Design's dark mode,
+   * we choose a near‑black neutral (#232324) for the page background. This
+   * provides more depth than the previous #111827 and pairs well with
+   * muted accent colors. */
+  background-color: #232324;
+  color: #f3f4f6; /* light text */
+
+  /* Element Plus CSS variables for dark theme */
+  /* Set background colors for components and overlay to our dark neutral */
+  --el-bg-color: #2e2e2f;        /* slightly lighter than page for contrast */
+  --el-bg-color-page: #232324;
+  --el-bg-color-overlay: #232324;
+  /* Fill colors control backgrounds of inputs, panels, etc. */
+  --el-fill-color: #2e2e2f;
+  --el-fill-color-light: #383839;
+  --el-fill-color-lighter: #2e2e2f;
+  --el-fill-color-extra-light: #2e2e2f;
+  --el-fill-color-dark: #232324;
+  --el-fill-color-darker: #232324;
+  --el-fill-color-blank: #2e2e2f;
+  /* Border colors control separators for panels and inputs */
+  /* Use darker borders (#333) in dark mode so lines are subtle and not distracting */
+  --el-border-color: #333;
+  --el-border-color-light: #333;
+  --el-border-color-lighter: #333;
+  --el-border-color-extra-light: #333;
+  /* Text colors for various states */
+  --el-text-color-primary: #f3f4f6;
+  --el-text-color-regular: #d1d5db;
+  --el-text-color-secondary: #9ca3af;
+  --el-text-color-placeholder: #6b7280;
+  --el-text-color-disabled: #4b5563;
+
+  /* Override Element Plus primary color palette for dark mode using bright blue (#0093ff) */
+  --el-color-primary: #0093ff;
+  --el-color-primary-light-1: #1a9eff;
+  --el-color-primary-light-2: #33a9ff;
+  --el-color-primary-light-3: #4db3ff;
+  --el-color-primary-light-4: #66beff;
+  --el-color-primary-light-5: #80c9ff;
+  --el-color-primary-light-6: #99d4ff;
+  --el-color-primary-light-7: #b3dfff;
+  --el-color-primary-light-8: #cce9ff;
+  --el-color-primary-light-9: #e6f4ff;
+  --el-color-primary-dark-1: #0084e6;
+  --el-color-primary-dark-2: #0076cc;
+  --el-color-primary-dark-3: #0067b2;
+  /* Provide primary RGB values for internal Element Plus computations */
+  --el-color-primary-rgb: 0, 147, 255;
+
+  /* Override the side navigation highlight color in dark mode.  See
+   * App.vue for the default definition.  Using a CSS variable here
+   * ensures the navigation highlight updates immediately when the
+   * `dark` class on <html> toggles without requiring a page refresh. */
+  --nav-highlight-color: #3e4143;
+}
+
+/* Override body background to avoid light flash on load */
+html.dark body {
+  /* Match body background to page background for seamless dark theme */
+  background-color: #232324;
+  color: #f3f4f6;
+}
+
+/* Element backgrounds */
+html.dark .bg-white {
+  /* White backgrounds become dark neutral to avoid jarring contrast */
+  background-color: #2e2e2f !important;
+  color: inherit;
+}
+
+html.dark .bg-gray-50,
+html.dark .bg-gray-100 {
+  background-color: #2e2e2f !important;
+  color: inherit;
+}
+
+/* Slightly darker backgrounds for deeper gray variants */
+html.dark .bg-gray-200 {
+  /* Light gray backgrounds become mid‑tone dark gray for subtle layering */
+  background-color: #383839 !important;
+  color: inherit;
+}
+
+/* Primary tinted backgrounds */
+html.dark .bg-blue-50 {
+  /* Use a dark teal inspired by Arco's dark primary (rgb(33,165,103)) for
+   * light blue backgrounds, giving the interface a fresh accent in dark mode */
+  background-color: #0f4a3c !important;
+  color: inherit;
+}
+
+html.dark .bg-red-50 {
+  background-color: #7f1d1d !important; /* dark red variant */
+  color: inherit;
+}
+
+/* Adjust borders for colored highlights */
+html.dark .border-blue-400 {
+  border-color: #3b82f6 !important;
+}
+
+html.dark .border-red-400 {
+  border-color: #ef4444 !important;
+}
+
+/* Hover states: translate light hover backgrounds to dark palette */
+html.dark .hover\:bg-gray-50:hover {
+  background-color: #374151 !important;
+}
+
+html.dark .hover\:bg-gray-200:hover {
+  background-color: #4b5563 !important;
+}
+
+/* Text colors: override gray palettes to ensure sufficient contrast */
+html.dark .text-gray-100,
+html.dark .text-gray-200,
+html.dark .text-gray-300,
+html.dark .text-gray-400,
+html.dark .text-gray-500,
+html.dark .text-gray-600,
+html.dark .text-gray-700,
+html.dark .text-gray-800,
+html.dark .text-gray-900 {
+  color: #f3f4f6 !important;
+}
+
+/* Darken red text on dark background for better contrast */
+html.dark .text-red-700 {
+  color: #f87171 !important; /* soft red */
+}
+
+/* Border colors */
+html.dark .border-gray-200,
+html.dark .border-gray-300,
+html.dark .border-gray-400 {
+  /* Use a very dark border for gray border classes in dark mode */
+  border-color: #333 !important;
+}
+
+/* Override default border classes to eliminate light separators */
+html.dark .border,
+html.dark .border-r,
+html.dark .border-l,
+html.dark .border-t,
+html.dark .border-b {
+  /* Default border lines adopt #333 in dark mode for understated separation */
+  border-color: #333 !important;
+}
+
+/* Horizontal rule: set dark border and background */
+html.dark hr {
+  /* Horizontal rules should use the same dark border color to avoid bright lines */
+  border-color: #333 !important;
+  background-color: #2e2e2f !important;
+}
+
+/* Override arbitrary Tailwind colors defined with #0031ff for dark mode. */
+/* Primary blue (used for default theme) becomes dark primary teal/green in dark mode. */
+html.dark .bg-\[\#0031ff\] {
+  /* Replace blue backgrounds with a deep blue for dark mode */
+  background-color: #004b80 !important;
+}
+html.dark .hover\:bg-\[\#0031ff\]:hover {
+  background-color: #004b80 !important;
+}
+html.dark .active\:bg-\[\#0031ff\]:active {
+  background-color: #004b80 !important;
+}
+/* Override other related blue hover/active states defined in login button */
+html.dark .hover\:bg-\[\#0028d8\]:hover {
+  background-color: #004b80 !important;
+}
+html.dark .active\:bg-\[\#0020b0\]:active {
+  background-color: #004b80 !important;
+}
+html.dark .border-\[\#0031ff\] {
+  /* Use bright blue for borders of elements that specify #0031ff in their class */
+  border-color: #0093ff !important;
+}
+html.dark .text-\[\#0031ff\] {
+  /* Use bright blue for text that uses #0031ff in its class */
+  color: #0093ff !important;
+}
+html.dark .hover\:text-blue-600:hover {
+  /* Override default blue-600 hover text to new bright blue */
+  color: #0093ff !important;
+}
+
+/* Logo inversion in dark mode: invert the colors of the logo image to appear light on dark backgrounds */
+html.dark img.logo-img {
+  filter: brightness(0) invert(1);
+}
+
+/* =====================================================================
+ * Dashboard Page Dark Mode Overrides
+ *
+ * The dashboard page (src/views/dashboard/index.vue) defines many of its
+ * own colors for backgrounds, borders and text.  In dark mode these
+ * values remain light unless explicitly overridden.  The following
+ * selectors ensure that when the `dark` class is applied to the
+ * `<html>` element the dashboard adopts a cohesive dark appearance.
+ */
+
+/* Container background and default text color */
+html.dark .dashboard-container {
+  background-color: #232324 !important;
+  color: #d1d5db !important;
+}
+
+/* Header bar: border and text colors */
+html.dark .dashboard-header {
+  border-bottom-color: #333 !important;
+}
+
+html.dark .dashboard-title {
+  color: #f3f4f6 !important;
+}
+
+html.dark .dashboard-subtitle {
+  color: #9ca3af !important;
+}
+
+html.dark .time-display {
+  background-color: #383839 !important;
+  color: #d1d5db !important;
+}
+
+/* Card titles and values */
+html.dark .card-title {
+  color: #9ca3af !important;
+}
+
+html.dark .card-value {
+  color: #f3f4f6 !important;
+}
+
+/* Chart title */
+html.dark .chart-title {
+  color: #f3f4f6 !important;
+}
+
+/* Table header title */
+html.dark .table-title {
+  color: #f3f4f6 !important;
+}
+
+/* Recent order table: adjust table variables and hover styles */
+html.dark .order-table {
+  --el-table-border-color: #333;
+  --el-table-header-bg-color: #383839;
+  --el-table-row-hover-bg-color: #383839;
+}
+
+html.dark .order-table .el-table__header th {
+  background-color: #383839 !important;
+  color: #d1d5db !important;
+}
+
+html.dark .order-table .el-table__body tr:hover > td {
+  background-color: #383839 !important;
+}
+
+/* =====================================================================
+ * Audit Visualization Page Dark Mode Overrides
+ *
+ * Similar to the dashboard page, the audit visualization page defines
+ * its own backgrounds and text colors.  Override them here so that
+ * switching to dark mode immediately adjusts the appearance without
+ * modifying the component styles directly.
+ */
+
+/* Container background and default text color */
+html.dark .audit-visualization {
+  background-color: #232324 !important;
+  color: #d1d5db !important;
+}
+
+/* Header: border and text colors */
+html.dark .audit-visualization .dashboard-header {
+  border-bottom-color: #333 !important;
+}
+
+html.dark .audit-visualization .dashboard-title {
+  color: #f3f4f6 !important;
+}
+
+html.dark .audit-visualization .dashboard-subtitle {
+  color: #9ca3af !important;
+}
+
+/* KPI cards */
+html.dark .audit-visualization .card-title {
+  color: #9ca3af !important;
+}
+
+html.dark .audit-visualization .card-value {
+  color: #f3f4f6 !important;
+}
+
+/* Chart titles */
+html.dark .audit-visualization .chart-title {
+  color: #f3f4f6 !important;
+}
+
+/* Chart container borders */
+html.dark .audit-visualization .chart-container {
+  border-color: #333 !important;
+}
+
+/* Table title */
+html.dark .audit-visualization .table-title {
+  color: #f3f4f6 !important;
+}
+
+/* Text buttons (Element Plus) adjustments in dark mode */
+html.dark .el-button.is-text {
+  /* Text buttons in dark mode use bright blue */
+  color: #0093ff;
+}
+html.dark .el-button.is-text:hover {
+  /* Hovering over text buttons slightly lightens the blue */
+  color: #33aaff;
+  background-color: #2e2e2f;
+}
+
+/* Text colors */
+html.dark .text-black,
+html.dark .text-gray-900,
+html.dark .text-gray-800,
+html.dark .text-gray-700 {
+  color: #f3f4f6 !important;
+}
+
+/* Element Plus specific overrides (optional): buttons and panels */
+html.dark .el-button {
+  color: #f3f4f6;
+  /* Buttons use mid‑tone backgrounds and slightly lighter borders for
+   * differentiation within the dark theme. */
+  background-color: #383839;
+  border-color: #4b5563;
+}
+
+html.dark .el-button--primary {
+  /* Primary buttons in dark mode use the bright blue, matching tabs and edit buttons */
+  background-color: #0093ff !important;
+  border-color: #0093ff !important;
+  color: #ffffff !important;
+}
+
+html.dark .el-table tr {
+  background-color: #2e2e2f;
+}
+
+html.dark .el-table th {
+  background-color: #383839;
+}
+
+/* Misc overrides for headers and footers */
+html.dark .border-b {
+  border-color: #333 !important;
+}
+
+/* =====================================================================
+ * Dictionary Page Dark Mode Overrides
+ *
+ * The dictionary management page (src/views/central/dict/index.vue) uses a
+ * light background (#f5f7fa) for its container.  In dark mode this
+ * background would appear glaringly bright.  Override it here so the
+ * container adopts our dark neutral background and inherits the dark
+ * text colors.  We also ensure that secondary text and hints are
+ * sufficiently legible by relying on the Element Plus text variables.
+ */
+html.dark .dict-container {
+  background-color: #232324 !important;
+  color: var(--el-text-color-regular) !important;
+}
+
+/* =====================================================================
+ * Email Page Dark Mode Overrides
+ *
+ * The email settings page defines its own styles for Markdown
+ * documentation using the `.markdown-body` class.  These styles set
+ * explicit colors and backgrounds that look too light on a dark
+ * interface.  We override the key elements here to harmonize with
+ * the dark theme.  Heading colors leverage the primary color
+ * (`--el-color-primary`) and regular text uses the standard
+ * Element Plus text variables.  Code blocks adopt the dark fill
+ * colors with a subtle border, ensuring they are distinct without
+ * being blinding.  Secondary text is toned down using the
+ * `--el-text-color-secondary` variable.
+ */
+html.dark .markdown-body h2 {
+  color: var(--el-color-primary) !important;
+  border-bottom-color: var(--el-color-primary) !important;
+}
+html.dark .markdown-body h3 {
+  color: var(--el-text-color-primary) !important;
+}
+html.dark .markdown-body pre {
+  background-color: var(--el-fill-color-light) !important;
+  color: var(--el-text-color-primary) !important;
+}
+html.dark .markdown-body code {
+  color: #facc15 !important; /* warm yellow for inline code */
+}
+html.dark .markdown-body pre code {
+  color: var(--el-text-color-primary) !important;
+}
+html.dark .text-gray-500 {
+  color: var(--el-text-color-secondary) !important;
+}
+
+/* =====================================================================
+ * Job Page Dark Mode Overrides
+ *
+ * The scheduled jobs page uses Tailwind color utility classes like
+ * `text-blue-600`, `text-green-600`, `text-orange-600` and
+ * `text-red-600` to differentiate job types and statuses.  In dark
+ * mode these saturated colors can appear harsh.  We redefine them
+ * using more muted tones that still provide visual distinction while
+ * remaining harmonious with the dark palette.
+ */
+html.dark .text-blue-600 {
+  color: #60a5fa !important; /* light blue (blue-400) */
+}
+html.dark .text-green-600 {
+  color: #34d399 !important; /* emerald-400 */
+}
+html.dark .text-orange-600 {
+  color: #fbbf24 !important; /* amber-400 */
+}
+html.dark .text-red-600 {
+  color: #f87171 !important; /* rose-400 */
+}
