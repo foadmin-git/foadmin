@@ -1,8 +1,20 @@
 # Foadmin
 
-![输入图片说明](https://serve.www.foadmin.com/api/admin/media/preview/32f6d3c529cbbc87d64796c7638d2d79f7d513c277cf24052f717d4253c61812)
 
-[官方文档](https://www.foadmin/docs)
+
+
+
+<p align="center">
+    <img src="https://serve.www.foadmin.com/api/admin/media/preview/32f6d3c529cbbc87d64796c7638d2d79f7d513c277cf24052f717d4253c61812" width="300" alt="logo" />
+</p>
+<p align="center">
+    <a href="https://www.foadmin.com" target="_blank">官网</a> |
+    <a href="https://www.foadmin.com/docs" target="_blank">官方文档</a> | 
+    <a href="https://demo.foadmin.com" target="_blank">演示</a> |
+    <a href="https://fastapi.tiangolo.com/" target="_blank">FastApi官方文档</a> 
+</p>
+
+
 
 
 #### 介绍
