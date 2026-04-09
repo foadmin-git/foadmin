@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env
+
+# Node
+node_modules/
+dist/
+*.local
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Uploads (keep structure, ignore content)
+server/runtime/uploads/media/*/*/*/
+!server/runtime/uploads/media/.gitkeep
+server/runtime/uploads/convert/*/*/*/
+!server/runtime/uploads/convert/.gitkeep
+
+# Logs
+*.log
