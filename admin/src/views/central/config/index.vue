@@ -13,7 +13,7 @@
                 style="width: 200px"
                 @input="loadConfigs"
               />
-              <el-button type="primary" @click="showAddDialog">新增配置</el-button>
+              <el-button type="primary" @click="showAddDialog" v-demo-disable>新增配置</el-button>
             </div>
           </div>
         </template>
@@ -103,7 +103,7 @@
                     <div v-else-if="config.value_type === 'file'">
                       <div class="flex gap-2">
                         <el-input v-model="formData[config.key]" placeholder="点击选择按钮打开媒体库" readonly />
-                        <el-button type="primary" @click="openMediaPicker(config.key)">
+                        <el-button type="primary" @click="openMediaPicker(config.key)" v-demo-disable>
                           <el-icon class="mr-1"><Picture /></el-icon>
                           选择文件
                         </el-button>
@@ -125,7 +125,7 @@
   
                     <!-- 操作按钮区域 -->
                     <div class="border-t pt-3 mt-3 flex gap-2 justify-end bg-gray-50 -mx-4 -mb-4 px-4 pb-4 rounded-b">
-                      <el-button size="small" @click="editConfig(config)">
+                      <el-button size="small" @click="editConfig(config)" v-demo-disable>
                         <el-icon class="mr-1"><Edit /></el-icon>
                         编辑
                       </el-button>
@@ -133,6 +133,7 @@
                         size="small"
                         type="danger"
                         @click="deleteConfig(config.id)"
+                        v-demo-disable
                       >
                         <el-icon class="mr-1"><Delete /></el-icon>
                         删除
@@ -145,7 +146,7 @@
   
             <!-- 保存按钮 -->
             <div class="mt-6 flex justify-center">
-              <el-button type="primary" size="large" @click="saveConfigs">
+              <el-button type="primary" size="large" @click="saveConfigs" v-demo-disable>
                 保存配置
               </el-button>
             </div>
@@ -214,7 +215,7 @@
         </el-form>
         <template #footer>
           <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitDialog">确定</el-button>
+          <el-button type="primary" @click="submitDialog" v-demo-disable>确定</el-button>
         </template>
       </el-dialog>
     </div>

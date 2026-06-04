@@ -46,7 +46,7 @@
                 </el-select>
                 <el-button @click="loadJobs"><el-icon><Refresh /></el-icon> 刷新</el-button>
               </div>
-              <el-button type="primary" @click="handleAdd" v-perm="'job:add'">
+              <el-button type="primary" @click="handleAdd" v-perm="'job:add'" v-demo-disable>
                 <el-icon><Plus /></el-icon> 新增任务
               </el-button>
             </div>
@@ -94,16 +94,16 @@
               </el-table-column>
               <el-table-column label="操作" width="280" fixed="right">
                 <template #default="{ row }">
-                  <el-button size="small" text @click="handleRun(row)" v-perm="'job:run'">
+                  <el-button size="small" text @click="handleRun(row)" v-perm="'job:run'" v-demo-disable>
                     <el-icon><VideoPlay /></el-icon> 执行
                   </el-button>
-                  <el-button size="small" text @click="handleToggleStatus(row)" v-perm="'job:edit'">
+                  <el-button size="small" text @click="handleToggleStatus(row)" v-perm="'job:edit'" v-demo-disable>
                     <el-icon v-if="row.status === 1"><VideoPause /></el-icon>
                     <el-icon v-else><VideoPlay /></el-icon>
                     {{ row.status === 1 ? '暂停' : '恢复' }}
                   </el-button>
-                  <el-button size="small" text @click="handleEdit(row)" v-perm="'job:edit'">编辑</el-button>
-                  <el-button size="small" text type="danger" @click="handleDelete(row)" v-perm="'job:delete'">删除</el-button>
+                  <el-button size="small" text @click="handleEdit(row)" v-perm="'job:edit'" v-demo-disable>编辑</el-button>
+                  <el-button size="small" text type="danger" @click="handleDelete(row)" v-perm="'job:delete'" v-demo-disable>删除</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -141,7 +141,7 @@
                 </el-select>
                 <el-button @click="loadLogs"><el-icon><Refresh /></el-icon> 刷新</el-button>
               </div>
-              <el-button type="danger" @click="handleClearLogs" v-perm="'job:log:delete'">
+              <el-button type="danger" @click="handleClearLogs" v-perm="'job:log:delete'" v-demo-disable>
                 <el-icon><Delete /></el-icon> 清理日志
               </el-button>
             </div>
@@ -272,7 +272,7 @@
         </el-form>
         <template #footer>
           <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitForm" :loading="submitting">确定</el-button>
+          <el-button type="primary" @click="submitForm" :loading="submitting" v-demo-disable>确定</el-button>
         </template>
       </el-dialog>
   

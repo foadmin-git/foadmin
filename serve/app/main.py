@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.db import Base, engine
-from app.core.middlewares import RequestAuditMiddleware, LoginLogMiddleware
+from app.core.middlewares import RequestAuditMiddleware, LoginLogMiddleware, DemoUserMiddleware
 from app.core.static_file_middleware import StaticFileMiddleware  # 静态文件访问中间件
 from app.core.scheduler import start_scheduler, shutdown_scheduler
 from app.routers.router_registry import register_routers
@@ -15,8 +15,9 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Foadmin API")
 
 
-# 中间件（顺序建议：登录日志 -> 审计）
+# 中间件（顺序建议：演示账号限制 -> 登录日志 -> 审计）
 app.add_middleware(StaticFileMiddleware)  # 静态文件访问中间件
+app.add_middleware(DemoUserMiddleware)    # 演示账号写操作限制
 app.add_middleware(LoginLogMiddleware)
 app.add_middleware(RequestAuditMiddleware)
 

@@ -18,7 +18,7 @@
         <div class="dict-types w-1/3 bg-white p-4 rounded shadow">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold">字典类型</h3>
-            <el-button type="primary" size="small" @click="handleAddType" v-perm="'dict:type:add'">
+            <el-button type="primary" size="small" @click="handleAddType" v-perm="'dict:type:add'" v-demo-disable>
               <el-icon><Plus /></el-icon> 新增类型
             </el-button>
           </div>
@@ -52,8 +52,8 @@
                 </div>
               </div>
               <div class="flex gap-2 mt-2" @click.stop>
-                <el-button size="small" text @click="handleEditType(item)" v-perm="'dict:type:edit'">编辑</el-button>
-                <el-button size="small" text type="danger" @click="handleDeleteType(item)" v-perm="'dict:type:delete'">删除</el-button>
+                <el-button size="small" text @click="handleEditType(item)" v-perm="'dict:type:edit'" v-demo-disable>编辑</el-button>
+                <el-button size="small" text type="danger" @click="handleDeleteType(item)" v-perm="'dict:type:delete'" v-demo-disable>删除</el-button>
               </div>
             </div>
   
@@ -82,7 +82,7 @@
           <div v-else>
             <div class="flex justify-between items-center mb-4">
               <h3 class="text-lg font-semibold">字典数据 - {{ currentType.name }}</h3>
-              <el-button type="primary" size="small" @click="handleAddData" v-perm="'dict:data:add'">
+              <el-button type="primary" size="small" @click="handleAddData" v-perm="'dict:data:add'" v-demo-disable>
                 <el-icon><Plus /></el-icon> 新增数据
               </el-button>
             </div>
@@ -118,8 +118,8 @@
               </el-table-column>
               <el-table-column label="操作" width="180" fixed="right">
                 <template #default="{ row }">
-                  <el-button size="small" text @click="handleEditData(row)" v-perm="'dict:data:edit'">编辑</el-button>
-                  <el-button size="small" text type="danger" @click="handleDeleteData(row)" v-perm="'dict:data:delete'">删除</el-button>
+                  <el-button size="small" text @click="handleEditData(row)" v-perm="'dict:data:edit'" v-demo-disable>编辑</el-button>
+                  <el-button size="small" text type="danger" @click="handleDeleteData(row)" v-perm="'dict:data:delete'" v-demo-disable>删除</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -171,7 +171,7 @@
         </el-form>
         <template #footer>
           <el-button @click="typeDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitTypeForm" :loading="typeSubmitting">确定</el-button>
+          <el-button type="primary" @click="submitTypeForm" :loading="typeSubmitting" v-demo-disable>确定</el-button>
         </template>
       </el-dialog>
   
@@ -216,7 +216,7 @@
         </el-form>
         <template #footer>
           <el-button @click="dataDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitDataForm" :loading="dataSubmitting">确定</el-button>
+          <el-button type="primary" @click="submitDataForm" :loading="dataSubmitting" v-demo-disable>确定</el-button>
         </template>
       </el-dialog>
     </div>

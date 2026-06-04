@@ -119,7 +119,8 @@ def login(body: LoginReq, request: Request, db: Session = Depends(get_db)):
     LOCKED_USERS.pop(body.username, None)
 
     roles, perms = load_user_perms(db, u.id)
-    token = create_token(str(u.id), roles, perms, u.username)
+    is_demo = bool(u.is_demo)  # 获取演示账号标识
+    token = create_token(str(u.id), roles, perms, u.username, is_demo)
     
     # 获取头像 SHA256
     avatar_sha256 = None
@@ -141,6 +142,7 @@ def login(body: LoginReq, request: Request, db: Session = Depends(get_db)):
         },
         roles=roles,
         perms=perms,
+        is_demo=is_demo,  # 返回演示账号标识
     )
 
 
@@ -165,7 +167,8 @@ def refresh_token(user=Depends(get_current_user), db: Session = Depends(get_db))
         raise HTTPException(404, "用户不存在")
     # 重新加载角色权限，防止角色变更后仍旧使用旧权限
     roles, perms = load_user_perms(db, u.id)
-    token = create_token(str(u.id), roles, perms, u.username)
+    is_demo = bool(u.is_demo)  # 获取演示账号标识
+    token = create_token(str(u.id), roles, perms, u.username, is_demo)
     
     # 获取头像 SHA256
     avatar_sha256 = None
@@ -187,6 +190,7 @@ def refresh_token(user=Depends(get_current_user), db: Session = Depends(get_db))
         },
         roles=roles,
         perms=perms,
+        is_demo=is_demo,  # 返回演示账号标识
     )
 
 

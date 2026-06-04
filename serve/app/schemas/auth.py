@@ -18,3 +18,4 @@ class LoginResp(BaseModel):
     user: dict
     roles: list[str]
     perms: list[str]
+    is_demo: bool = False  # 是否为演示账号

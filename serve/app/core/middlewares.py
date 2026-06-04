@@ -2,16 +2,58 @@
 import json, time
 from typing import Callable
 from starlette.middleware.base import BaseHTTPMiddleware
-from fastapi import Request
+from fastapi import Request, Response
 from app.core.db import SessionLocal
 from app.core.trace import get_or_create_trace_id
 from app.models.audit import AuditLog
 from app.models.login_log import LoginLog
 from app.models.user import User
 from sqlalchemy import text
+from jose import jwt, JWTError
+from app.core.config import settings
 
 WRITE_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
 AUDIT_EXCLUDE_PATH_PREFIX = ("/docs", "/redoc", "/openapi", "/static")
+
+# 演示账号白名单路径（允许访问的写操作）
+DEMO_WRITE_WHITELIST = {
+    "/api/common/login",
+    "/api/common/refresh",
+    "/api/common/logout",  # 如果有登出接口
+}
+
+class DemoUserMiddleware(BaseHTTPMiddleware):
+    """
+    演示账号中间件：阻止演示账号执行写操作
+    """
+    async def dispatch(self, request: Request, call_next: Callable):
+        # 只检查写操作
+        if request.method not in WRITE_METHODS:
+            return await call_next(request)
+        
+        # 白名单路径放行
+        if request.url.path in DEMO_WRITE_WHITELIST:
+            return await call_next(request)
+        
+        # 检查是否为演示账号
+        auth = request.headers.get("Authorization", "")
+        if auth.startswith("Bearer "):
+            token = auth.split(" ", 1)[1]
+            try:
+                payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGO])
+                is_demo = payload.get("is_demo", False)
+                if is_demo:
+                    # 返回403错误
+                    return Response(
+                        content='{"detail":"演示账号无操作权限"}',
+                        status_code=403,
+                        media_type="application/json"
+                    )
+            except JWTError:
+                pass  # Token 无效，交给后续处理
+        
+        return await call_next(request)
+
 
 class LoginLogMiddleware(BaseHTTPMiddleware):
     LOGIN_PATH = "/api/common/login"

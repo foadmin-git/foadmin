@@ -81,17 +81,75 @@
             />
           </el-select>
 
-          <el-button type="primary" v-perm="'media:upload'">
+          <el-button type="primary" v-perm="'media:upload'" :disabled="uploading" class="hidden">
             <el-upload
               :show-file-list="false"
               :http-request="onUpload"
               :data="{ dir_id: currentDirId, tags: uploadTagsInput || undefined }"
+              :disabled="uploading"
+              multiple
             >
               上传
             </el-upload>
           </el-button>
           <el-input v-model="uploadTagsInput" placeholder="上传标签，逗号分隔" class="w-56" clearable />
           <el-button @click="loadFiles">刷新</el-button>
+          
+          <!-- 批量操作按钮 -->
+          <template v-if="selectedFiles.length > 0">
+            <el-tag type="info" class="ml-2" size="small">已选择 {{ selectedFiles.length }} 项</el-tag>
+            <el-button size="small" @click="handleConfirm" type="primary">
+              确认选择({{ selectedFiles.length }})
+            </el-button>
+          </template>
+        </div>
+
+        <!-- 上传进度条 -->
+        <div v-show="uploading" class="mb-2">
+          <el-progress
+            :percentage="uploadPercent"
+            :stroke-width="4"
+            :show-text="true"
+            class="upload-progress"
+          />
+        </div>
+
+        <!-- 拖拽上传区域（可收起/展开） -->
+        <div class="mb-3">
+          <div 
+            class="flex items-center justify-between px-3 py-2 bg-gray-100 rounded-t-lg border border-gray-300 cursor-pointer hover:bg-gray-200 transition-colors"
+            @click="showUploadArea = !showUploadArea"
+          >
+            <div class="flex items-center gap-2">
+              <el-icon :size="14" color="#6b7280">
+                <component :is="showUploadArea ? 'ArrowDown' : 'ArrowRight'" />
+              </el-icon>
+              <span class="text-xs font-medium text-gray-700">上传文件</span>
+            </div>
+            <el-icon :size="14" color="#6b7280">
+              <component :is="showUploadArea ? 'ArrowUp' : 'ArrowDown'" />
+            </el-icon>
+          </div>
+          
+          <div v-show="showUploadArea" class="border border-gray-300 border-t-0 rounded-b-lg">
+            <div 
+              class="p-6 border-2 border-dashed border-gray-300 m-2 rounded-lg text-center bg-gray-50 hover:bg-blue-50 hover:border-blue-400 transition-colors cursor-pointer"
+              @click="triggerFileInput"
+              @dragover.prevent
+              @drop.prevent="handleDropOnArea"
+            >
+              <el-icon :size="40" color="#9ca3af" class="mb-2"><upload-filled /></el-icon>
+              <p class="text-gray-600 text-sm font-medium">拖拽文件到此处上传</p>
+              <p class="text-gray-400 text-xs mt-1">或点击选择文件</p>
+              <input 
+                ref="fileInputRef"
+                type="file" 
+                multiple 
+                class="hidden"
+                @change="handleFileSelect"
+              />
+            </div>
+          </div>
         </div>
 
         <el-table
@@ -253,7 +311,7 @@
 import { ref, reactive, onMounted, watchEffect, nextTick, computed } from 'vue'
 import { mediaDirs, mediaFiles, uploadMedia, mediaTags } from '@/api/media'
 import dayjs from 'dayjs'
-import { Folder } from '@element-plus/icons-vue'
+import { Folder, UploadFilled } from '@element-plus/icons-vue'
 
 // Props定义
 const props = defineProps({
@@ -281,6 +339,9 @@ const visible = computed({
   set: (val) => emit('update:modelValue', val)
 })
 
+// 文件输入引用
+const fileInputRef = ref()
+
 // 目录相关
 const dirTreeRef = ref()
 const dirTree = ref([])
@@ -301,8 +362,15 @@ const allTags = ref([])
 const filterTagNames = ref([])
 const uploadTagsInput = ref('')
 
+// 上传进度
+const uploading = ref(false)
+const uploadPercent = ref(0)
+
 // 选择相关
 const selectedFiles = ref([])
+
+// 拖拽上传区域显示控制
+const showUploadArea = ref(true) // 默认展开
 
 // 目录编辑相关
 const showDirEdit = ref(false)
@@ -389,8 +457,70 @@ function preview(row) {
 
 // 上传文件
 async function onUpload({ file, data }) {
-  await uploadMedia({ file, data })
-  loadFiles()
+  uploading.value = true
+  uploadPercent.value = 0
+  try {
+    await uploadMedia({
+      file,
+      data,
+      onProgress: (p) => { uploadPercent.value = p }
+    })
+    loadFiles()
+    loadTags()
+  } finally {
+    uploading.value = false
+  }
+}
+
+// 触发文件选择
+function triggerFileInput() {
+  fileInputRef.value?.click()
+}
+
+// 处理文件选择
+async function handleFileSelect(e) {
+  const files = Array.from(e.target.files)
+  if (files.length === 0) return
+  
+  // 清空input值，允许重复选择同一文件
+  e.target.value = ''
+  
+  await uploadFiles(files)
+}
+
+// 处理拖拽到区域
+async function handleDropOnArea(e) {
+  const files = Array.from(e.dataTransfer.files)
+  if (files.length === 0) return
+  
+  await uploadFiles(files)
+}
+
+// 上传文件列表
+async function uploadFiles(files) {
+  uploading.value = true
+  uploadPercent.value = 0
+  
+  try {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      await uploadMedia({
+        file,
+        data: { dir_id: currentDirId.value, tags: uploadTagsInput.value || undefined },
+        onProgress: (p) => { 
+          // 计算总体进度
+          uploadPercent.value = Math.round(((i + p / 100) / files.length) * 100)
+        }
+      })
+    }
+    loadFiles()
+    loadTags()
+  } catch (error) {
+    console.error('上传失败：', error)
+  } finally {
+    uploading.value = false
+    uploadPercent.value = 0
+  }
 }
 
 // 下载文件（使用SHA256）
@@ -489,5 +619,13 @@ onMounted(async () => {
 :deep(.row-disabled) {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* 上传进度条 - 直角无圆角 */
+:deep(.upload-progress .el-progress-bar__outer) {
+  border-radius: 0;
+}
+:deep(.upload-progress .el-progress-bar__inner) {
+  border-radius: 0;
 }
 </style>

@@ -5,7 +5,7 @@
         <template #header>
           <div class="flex justify-between items-center">
             <span>组织树</span>
-            <el-button type="primary" size="small" @click="openEdit()">新增根组织</el-button>
+            <el-button type="primary" size="small" @click="openEdit()" v-demo-disable>新增根组织</el-button>
           </div>
         </template>
         <el-tree
@@ -19,9 +19,9 @@
           <template #default="{ data }">
             <div class="flex items-center gap-2">
               <span>{{ data.name }}</span>
-              <el-button size="small" @click.stop="openEdit(data)">新增子级</el-button>
-              <el-button size="small" @click.stop="openEdit(data, true)">编辑</el-button>
-              <el-popconfirm title="确认删除？" @confirm.stop="onDel(data)"><template #reference><el-button size="small" type="danger">删</el-button></template></el-popconfirm>
+              <el-button size="small" @click.stop="openEdit(data)" v-demo-disable>新增子级</el-button>
+              <el-button size="small" @click.stop="openEdit(data, true)" v-demo-disable>编辑</el-button>
+              <el-popconfirm title="确认删除？" @confirm.stop="onDel(data)"><template #reference><el-button size="small" type="danger" v-demo-disable>删</el-button></template></el-popconfirm>
             </div>
           </template>
         </el-tree>
@@ -54,7 +54,7 @@
         </el-form>
         <template #footer>
           <el-button @click="showEdit=false">取消</el-button>
-          <el-button type="primary" @click="saveEdit">保存</el-button>
+          <el-button type="primary" @click="saveEdit" v-demo-disable>保存</el-button>
         </template>
       </el-dialog>
     </div>

@@ -2,7 +2,7 @@
 <template>
   <div class="space-y-3">
     <div class="flex items-center gap-2">
-      <el-button type="primary" @click="openEdit()">新增角色</el-button>
+      <el-button type="primary" @click="openEdit()" v-demo-disable>新增角色</el-button>
     </div>
 
     <el-table :data="rows" border>
@@ -12,10 +12,10 @@
       <el-table-column prop="sort" label="排序" width="100" />
       <el-table-column label="操作" width="260">
         <template #default="{ row }">
-          <el-button size="small" @click="openEdit(row)">编辑</el-button>
-          <el-button size="small" @click="openPerms(row)">权限</el-button>
+          <el-button size="small" @click="openEdit(row)" v-demo-disable>编辑</el-button>
+          <el-button size="small" @click="openPerms(row)" v-demo-disable>权限</el-button>
           <el-popconfirm title="确认删除？" @confirm="onDel(row)">
-            <template #reference><el-button size="small" type="danger">删除</el-button></template>
+            <template #reference><el-button size="small" type="danger" v-demo-disable>删除</el-button></template>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -30,7 +30,7 @@
       </el-form>
       <template #footer>
         <el-button @click="showEdit=false">取消</el-button>
-        <el-button type="primary" @click="saveEdit">保存</el-button>
+        <el-button type="primary" @click="saveEdit" v-demo-disable>保存</el-button>
       </template>
     </el-dialog>
 
@@ -67,7 +67,7 @@
 
       <template #footer>
         <el-button @click="showPerms=false">取消</el-button>
-        <el-button type="primary" @click="savePerms">保存</el-button>
+        <el-button type="primary" @click="savePerms" v-demo-disable>保存</el-button>
       </template>
     </el-dialog>
   </div>

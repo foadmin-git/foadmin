@@ -1,7 +1,7 @@
 <!--src\views\central\org\level\index.vue-->
 <template>
     <div class="space-y-3">
-      <el-button type="primary" @click="openEdit()">新增层级</el-button>
+      <el-button type="primary" @click="openEdit()" v-demo-disable>新增层级</el-button>
       <el-table :data="rows" border>
         <el-table-column prop="id" label="ID" width="80"/>
         <el-table-column prop="name" label="名称"/>
@@ -9,8 +9,8 @@
         <el-table-column prop="weight" label="权重" width="120"/>
         <el-table-column label="操作" width="200">
           <template #default="{ row }">
-            <el-button size="small" @click="openEdit(row)">编辑</el-button>
-            <el-popconfirm title="确认删除？" @confirm="onDel(row)"><template #reference><el-button size="small" type="danger">删除</el-button></template></el-popconfirm>
+            <el-button size="small" @click="openEdit(row)" v-demo-disable>编辑</el-button>
+            <el-popconfirm title="确认删除？" @confirm="onDel(row)"><template #reference><el-button size="small" type="danger" v-demo-disable>删除</el-button></template></el-popconfirm>
           </template>
         </el-table-column>
       </el-table>
@@ -23,7 +23,7 @@
         </el-form>
         <template #footer>
           <el-button @click="showEdit=false">取消</el-button>
-          <el-button type="primary" @click="saveEdit">保存</el-button>
+          <el-button type="primary" @click="saveEdit" v-demo-disable>保存</el-button>
         </template>
       </el-dialog>
     </div>

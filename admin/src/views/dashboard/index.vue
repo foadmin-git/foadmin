@@ -1,34 +1,34 @@
 <template>
   <div class="dashboard-container">
     <!-- 顶部标题和刷新按钮 -->
-    <div class="dashboard-header">
-      <div class="header-left">
-        <h1 class="dashboard-title">运营数据大屏</h1>
-        <div class="dashboard-subtitle">实时监控 · 数据分析 · 决策支持</div>
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 pb-4 border-b border-gray-200 gap-3">
+      <div class="flex flex-col">
+        <h1 class="text-lg md:text-2xl font-semibold text-gray-800">运营数据大屏</h1>
+        <div class="text-xs md:text-sm text-gray-400 mt-1">实时监控 · 数据分析 · 决策支持</div>
       </div>
-      <div class="header-right">
-        <div class="time-display">{{ currentTime }}</div>
-        <el-button type="primary" size="large" @click="fetchAllData">
-          <el-icon class="refresh-icon"><Refresh /></el-icon>
+      <div class="flex items-center justify-between md:justify-end gap-3 w-full md:w-auto">
+        <div class="text-xs md:text-sm text-gray-500 bg-gray-100 px-2 md:px-3 py-1 md:py-1.5 rounded">{{ currentTime }}</div>
+        <el-button type="primary" size="default" @click="fetchAllData">
+          <el-icon class="mr-1"><Refresh /></el-icon>
           数据刷新
         </el-button>
       </div>
     </div>
 
     <!-- 关键指标卡片 -->
-    <div class="kpi-container">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
       <el-card v-for="card in kpis" :key="card.title" class="kpi-card" shadow="hover">
-        <div class="card-content">
-          <div class="card-icon" :style="{ backgroundColor: card.color }">
+        <div class="flex items-center p-3 md:p-4">
+          <div class="w-9 h-9 md:w-12 md:h-12 rounded-lg flex items-center justify-center mr-3 md:mr-4 text-white text-lg md:text-xl" :style="{ backgroundColor: card.color }">
             <el-icon><component :is="card.icon" /></el-icon>
           </div>
-          <div class="card-text">
-            <div class="card-title">{{ card.title }}</div>
-            <div class="card-value">{{ card.value }}</div>
-            <div class="card-trend" :class="getTrendClass(card.subtitle)">
+          <div class="flex-1 min-w-0">
+            <div class="text-xs md:text-sm text-gray-500 mb-1">{{ card.title }}</div>
+            <div class="text-lg md:text-2xl font-semibold text-gray-800 mb-1 truncate">{{ card.value }}</div>
+            <div class="text-xs flex items-center" :class="getTrendClass(card.subtitle)">
               <el-icon v-if="card.subtitle.includes('↑')"><Top /></el-icon>
               <el-icon v-else-if="card.subtitle.includes('↓')"><Bottom /></el-icon>
-              {{ card.subtitle }}
+              <span class="truncate">{{ card.subtitle }}</span>
             </div>
           </div>
         </div>
@@ -36,49 +36,49 @@
     </div>
 
     <!-- 图表区域 -->
-    <div class="chart-area">
+    <div class="mb-6">
       <!-- 第一行图表 -->
-      <div class="chart-row">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 mb-3 md:mb-4">
         <el-card class="chart-card" shadow="hover">
-          <div class="chart-header">
-            <div class="chart-title">销售趋势</div>
-            <el-select v-model="salesTrendRange" size="small" style="width: 120px">
+          <div class="flex flex-wrap justify-between items-center mb-3 px-2 gap-2">
+            <div class="text-sm md:text-base font-medium text-gray-700">销售趋势</div>
+            <el-select v-model="salesTrendRange" size="small" class="w-24 md:w-32">
               <el-option label="近7天" value="7" />
               <el-option label="近30天" value="30" />
             </el-select>
           </div>
-          <VChart :option="salesTrendOption" class="chart-content" />
+          <VChart :option="salesTrendOption" class="h-48 md:h-72 w-full" />
         </el-card>
         
         <el-card class="chart-card" shadow="hover">
-          <div class="chart-header">
-            <div class="chart-title">区域订单分布</div>
-            <el-select v-model="regionOrderType" size="small" style="width: 120px">
+          <div class="flex flex-wrap justify-between items-center mb-3 px-2 gap-2">
+            <div class="text-sm md:text-base font-medium text-gray-700">区域订单分布</div>
+            <el-select v-model="regionOrderType" size="small" class="w-24 md:w-32">
               <el-option label="订单量" value="count" />
               <el-option label="销售额" value="amount" />
             </el-select>
           </div>
-          <VChart :option="regionOrderOption" class="chart-content" />
+          <VChart :option="regionOrderOption" class="h-48 md:h-72 w-full" />
         </el-card>
       </div>
       
       <!-- 第二行图表 -->
-      <div class="chart-row">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4">
         <el-card class="chart-card" shadow="hover">
-          <div class="chart-header">
-            <div class="chart-title">产品类别占比</div>
+          <div class="flex flex-wrap justify-between items-center mb-3 px-2 gap-2">
+            <div class="text-sm md:text-base font-medium text-gray-700">产品类别占比</div>
             <el-radio-group v-model="categoryViewType" size="small">
               <el-radio-button label="pie">饼图</el-radio-button>
               <el-radio-button label="bar">柱图</el-radio-button>
             </el-radio-group>
           </div>
-          <VChart v-if="categoryViewType === 'pie'" :option="categoryPieOption" class="chart-content" />
-          <VChart v-else :option="categoryBarOption" class="chart-content" />
+          <VChart v-if="categoryViewType === 'pie'" :option="categoryPieOption" class="h-48 md:h-72 w-full" />
+          <VChart v-else :option="categoryBarOption" class="h-48 md:h-72 w-full" />
         </el-card>
         
         <el-card class="chart-card" shadow="hover">
-          <div class="chart-header">
-            <div class="chart-title">订单状态分布</div>
+          <div class="flex flex-wrap justify-between items-center mb-3 px-2 gap-2">
+            <div class="text-sm md:text-base font-medium text-gray-700">订单状态分布</div>
             <el-date-picker
               v-model="statusDateRange"
               type="daterange"
@@ -86,71 +86,75 @@
               range-separator="-"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
-              style="width: 240px"
+              class="w-full sm:w-56"
             />
           </div>
-          <VChart :option="statusBarOption" class="chart-content" />
+          <VChart :option="statusBarOption" class="h-48 md:h-72 w-full" />
         </el-card>
       </div>
     </div>
 
     <!-- 最近订单表格 -->
-    <el-card class="order-table-card" shadow="hover">
-      <div class="table-header">
-        <div class="table-title">最近订单</div>
-        <div class="table-actions">
+    <el-card class="rounded-lg border-0" shadow="hover">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3">
+        <div class="text-sm md:text-base font-medium text-gray-700">最近订单</div>
+        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <el-input
             v-model="orderSearch"
             placeholder="搜索订单号/客户"
             size="small"
-            style="width: 200px; margin-right: 10px"
+            class="w-full sm:w-48"
             clearable
           >
             <template #prefix>
               <el-icon><Search /></el-icon>
             </template>
           </el-input>
-          <el-button type="success" size="small" @click="viewAllOrders">
-            <el-icon><View /></el-icon>
-            查看全部
-          </el-button>
-          <el-button type="primary" size="small" @click="exportOrders">
-            <el-icon><Download /></el-icon>
-            导出数据
-          </el-button>
+          <div class="flex gap-2">
+            <el-button type="success" size="small" class="flex-1 sm:flex-none" @click="viewAllOrders">
+              <el-icon><View /></el-icon>
+              查看全部
+            </el-button>
+            <el-button type="primary" size="small" class="flex-1 sm:flex-none" @click="exportOrders" v-demo-disable>
+              <el-icon><Download /></el-icon>
+              导出数据
+            </el-button>
+          </div>
         </div>
       </div>
-      <el-table
-        :data="filteredOrders"
-        stripe
-        border
-        size="medium"
-        style="width: 100%"
-        class="order-table"
-        height="300"
-      >
-        <el-table-column prop="orderId" label="订单号" width="200" sortable />
-        <el-table-column prop="customer" label="客户" width="150" />
-        <el-table-column prop="amount" label="金额(¥)" width="120" sortable>
-          <template #default="{ row }">
-            {{ row.amount.toLocaleString() }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="status" label="状态" width="120">
-          <template #default="{ row }">
-            <el-tag :type="statusType(row.status)" effect="dark" round>
-              {{ row.status }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="date" label="日期" width="200" sortable />
-        <el-table-column label="操作" width="120">
-          <template #default="{ row }">
-            <el-button size="small" @click="viewOrderDetail(row)">详情</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <div class="table-footer">
+      <div class="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+        <el-table
+          :data="filteredOrders"
+          stripe
+          border
+          size="small"
+          style="width: 100%"
+          class="order-table"
+          :max-height="$screen?.isMobile ? 280 : 300"
+        >
+          <el-table-column prop="orderId" label="订单号" min-width="140" sortable />
+          <el-table-column prop="customer" label="客户" min-width="80" class-name="hidden md:table-cell" />
+          <el-table-column prop="amount" label="金额(¥)" min-width="90" sortable class-name="hidden sm:table-cell">
+            <template #default="{ row }">
+              {{ row.amount.toLocaleString() }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="status" label="状态" min-width="80">
+            <template #default="{ row }">
+              <el-tag :type="statusType(row.status)" effect="dark" round size="small">
+                {{ row.status }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="date" label="日期" min-width="140" sortable class-name="hidden md:table-cell" />
+          <el-table-column label="操作" min-width="70" fixed="right">
+            <template #default="{ row }">
+              <el-button size="small" text type="primary" @click="viewOrderDetail(row)">详情</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <div class="flex justify-end mt-4">
         <el-pagination
           small
           layout="prev, pager, next"
@@ -692,62 +696,16 @@ onMounted(() => {
 
 <style scoped>
 .dashboard-container {
-  padding: 20px;
+  padding: 12px;
   background-color: #fbfbfb;
   min-height: 100vh;
   color: #333;
 }
 
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #e6e6e6;
-}
-
-.header-left {
-  display: flex;
-  flex-direction: column;
-}
-
-.dashboard-title {
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0;
-  color: #333;
-}
-
-.dashboard-subtitle {
-  font-size: 14px;
-  color: #999;
-  margin-top: 4px;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.time-display {
-  font-size: 14px;
-  color: #666;
-  background-color: #f0f2f5;
-  padding: 6px 12px;
-  border-radius: 4px;
-}
-
-.refresh-icon {
-  margin-right: 6px;
-}
-
-.kpi-container {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 24px;
+@media (min-width: 768px) {
+  .dashboard-container {
+    padding: 20px;
+  }
 }
 
 .kpi-card {
@@ -757,68 +715,8 @@ onMounted(() => {
 }
 
 .kpi-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-3px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-}
-
-.card-content {
-  display: flex;
-  align-items: center;
-  padding: 16px;
-}
-
-.card-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 16px;
-  color: white;
-  font-size: 20px;
-}
-
-.card-text {
-  flex: 1;
-}
-
-.card-title {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 4px;
-}
-
-.card-value {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: #333;
-}
-
-.card-trend {
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-}
-
-.up-trend {
-  color: #f56c6c;
-}
-
-.down-trend {
-  color: #67c23a;
-}
-
-.chart-area {
-  margin-bottom: 24px;
-}
-
-.chart-row {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  margin-bottom: 16px;
 }
 
 .chart-card {
@@ -828,55 +726,16 @@ onMounted(() => {
 }
 
 .chart-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-3px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
 
-.chart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  padding: 0 8px;
+.up-trend {
+  color: #f56c6c;
 }
 
-.chart-title {
-  font-size: 16px;
-  font-weight: 500;
-  color: #333;
-}
-
-.chart-content {
-  height: 300px;
-  width: 100%;
-}
-
-.order-table-card {
-  border-radius: 8px;
-  border: none;
-}
-
-.table-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.table-title {
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.table-actions {
-  display: flex;
-  align-items: center;
-}
-
-.table-footer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 16px;
+.down-trend {
+  color: #67c23a;
 }
 
 .order-table {

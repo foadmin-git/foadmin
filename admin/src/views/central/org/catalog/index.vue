@@ -2,7 +2,7 @@
 <template>
   <div class="space-y-3">
     <div class="flex gap-2">
-      <el-button type="primary" @click="openEdit()">新增权限</el-button>
+      <el-button type="primary" @click="openEdit()" v-demo-disable>新增权限</el-button>
       <el-tag type="info">仅展示 platform=admin</el-tag>
     </div>
 
@@ -25,10 +25,10 @@
             <span class="ml-1 text-xs">{{ data.icon }}</span>
           </span>
 
-          <el-button size="small" @click.stop="openEdit(data)">编辑</el-button>
+          <el-button size="small" @click.stop="openEdit(data)" v-demo-disable>编辑</el-button>
           <el-popconfirm title="确认删除？" @confirm.stop="onDel(data)">
             <template #reference>
-              <el-button size="small" type="danger">删除</el-button>
+              <el-button size="small" type="danger" v-demo-disable>删除</el-button>
             </template>
           </el-popconfirm>
         </div>
@@ -112,7 +112,7 @@
 
       <template #footer>
         <el-button @click="showEdit=false">取消</el-button>
-        <el-button type="primary" @click="save">保存</el-button>
+        <el-button type="primary" @click="save" v-demo-disable>保存</el-button>
       </template>
     </el-dialog>
 

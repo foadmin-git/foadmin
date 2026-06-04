@@ -10,6 +10,7 @@ export const userStore = reactive({
   user: load().user || null,
   roles: load().roles || [],
   perms: load().perms || [],
+  is_demo: load().is_demo || false,  // 是否为演示账号
   // 用于保存刷新定时器句柄
   _refreshTimer: null,
   /**
@@ -21,6 +22,7 @@ export const userStore = reactive({
     this.user  = p.user;
     this.roles = p.roles || [];
     this.perms = p.perms || [];
+    this.is_demo = p.is_demo || false;  // 保存演示账号标识
     save(p);
     this._setupRefresh();
   },
@@ -32,6 +34,7 @@ export const userStore = reactive({
     this.user  = null;
     this.roles = [];
     this.perms = [];
+    this.is_demo = false;  // 清除演示账号标识
     save({});
     if (this._refreshTimer) {
       clearTimeout(this._refreshTimer);

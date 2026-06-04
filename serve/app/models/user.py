@@ -18,3 +18,4 @@ class User(Base):
     avatar_file_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     avatar_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
     status: Mapped[int] = mapped_column(Integer, default=1)
+    is_demo: Mapped[int] = mapped_column(Integer, default=0)  # 是否为演示账号 0=否 1=是

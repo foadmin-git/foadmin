@@ -8,9 +8,9 @@
       <div class="flex items-center gap-4 mb-6">
         <el-avatar :size="80" :src="avatarPreview" />
         <div class="flex gap-2 items-center">
-          <el-button @click="chooseAvatar">媒体库选择</el-button>
-          <el-button @click="triggerUpload">上传图片</el-button>
-          <el-button v-if="form.avatar_file_id || form.avatar_url" @click="clearAvatar" type="warning" plain>移除头像</el-button>
+          <el-button @click="chooseAvatar" v-demo-disable>媒体库选择</el-button>
+          <el-button @click="triggerUpload" v-demo-disable>上传图片</el-button>
+          <el-button v-if="form.avatar_file_id || form.avatar_url" @click="clearAvatar" type="warning" plain v-demo-disable>移除头像</el-button>
           <!-- 隐藏的文件上传输入，用于上传本地图片 -->
           <input
             ref="uploadInput"
@@ -45,7 +45,7 @@
         </el-form-item>
 
         <div class="pt-2">
-          <el-button type="primary" :loading="loading" @click="submit">保存</el-button>
+          <el-button type="primary" :loading="loading" @click="submit" v-demo-disable>保存</el-button>
           <el-button @click="load">重置</el-button>
         </div>
       </el-form>

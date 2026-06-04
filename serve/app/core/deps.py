@@ -23,6 +23,7 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
         request.state.user_name = payload.get("username")
         request.state.roles = payload.get("roles", [])
         request.state.perms = payload.get("perms", [])
+        request.state.is_demo = payload.get("is_demo", False)  # 演示账号标识
         request.state.user_roles = request.state.roles
         request.state.user_perms  = request.state.perms
         
@@ -31,10 +32,33 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
 
-
 def require_perm(code: str):
     def checker(user = Depends(get_current_user)):
         if code not in user.get("perms", []):
             raise HTTPException(status_code=403, detail="No permission")
         return user
+    return checker
+
+
+def check_demo_user(request: Request):
+    """
+    检查是否为演示账号，如果是则禁止写操作
+    用于 POST/PUT/DELETE 等修改数据的接口
+    """
+    is_demo = getattr(request.state, "is_demo", False)
+    if is_demo:
+        raise HTTPException(status_code=403, detail="演示账号无操作权限")
+    return True
+
+
+def require_not_demo():
+    """
+    依赖项：禁止演示账号执行操作
+    用法: @router.post("/xxx", dependencies=[Depends(require_not_demo())])
+    """
+    def checker(request: Request):
+        is_demo = getattr(request.state, "is_demo", False)
+        if is_demo:
+            raise HTTPException(status_code=403, detail="演示账号无操作权限")
+        return True
     return checker

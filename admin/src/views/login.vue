@@ -73,7 +73,7 @@
         
         <!-- 底部链接 -->
         <div class="mt-5 text-center text-xs text-gray-500">
-          <a href="#" class="text-[#0031ff] hover:text-blue-600 transition-colors">忘记密码?</a>
+          <a href="#" class="text-[#0031ff] hover:text-blue-600 transition-colors">忘记密码?</a>         
           <span class="mx-2">·</span>
         </div>
       </div>
@@ -86,9 +86,10 @@
     title="请完成安全验证"
     width="400px"
     :show-close="true"
-    :close-on-click-modal="true"
+    :close-on-click-modal="false"
     align-center
     :before-close="handleDialogClose"
+    @opened="onDialogOpened"
   >
     <div class="p-4">
       <div class="text-sm text-gray-600 mb-4 text-center">
@@ -158,10 +159,20 @@ const loading = ref(false)
 onMounted(async () => {
   try {
     const response = await http.get('/api/admin/system/config/public')
-    // http.js 的响应拦截器返回的是 res，需要取 res.data
     const res = response.data || response
+    
     // 读取验证码开关配置，支持多种格式
-    const captchaValue = res.enable_captcha
+    let captchaValue = res.enable_captcha
+    
+    // 如果是分组格式，尝试从 login 分类中获取
+    if (captchaValue === undefined && res.grouped) {
+      const loginConfig = res.grouped.login || res.grouped.system || []
+      const captchaConfig = loginConfig.find(item => item.key === 'enable_captcha')
+      if (captchaConfig) {
+        captchaValue = captchaConfig.value
+      }
+    }
+    
     // 兼容多种数据类型：字符串'1'/'true'、数字1、布尔true
     enableCaptcha.value = (
       captchaValue === '1' || 
@@ -188,6 +199,11 @@ const onSlideFail = () => {
 }
 const onSlideAgain = () => {
   // 重新开始
+}
+
+// 弹窗打开后的回调
+const onDialogOpened = () => {
+  // 弹窗已打开
 }
 
 const submit = async () => {

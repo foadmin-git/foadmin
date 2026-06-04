@@ -180,6 +180,47 @@ def list_tags(db: Session = Depends(get_db)):
     return {"items": [{"id": r.id, "name": r.name, "count": int(r.count or 0)} for r in rows]}
 
 
+@router.post("/tags", dependencies=[Depends(require_perm("media:upload"))])
+def create_tag(
+    name: str,
+    db: Session = Depends(get_db)
+):
+    """创建标签"""
+    if not name or not name.strip():
+        raise HTTPException(400, "标签名不能为空")
+    
+    name = name.strip()
+    existing = db.query(MediaTag).filter_by(name=name).first()
+    if existing:
+        raise HTTPException(400, "标签已存在")
+    
+    tag = MediaTag(name=name)
+    db.add(tag)
+    db.commit()
+    db.refresh(tag)
+    return {"id": tag.id, "name": tag.name}
+
+
+@router.delete("/tags/{tid}", dependencies=[Depends(require_perm("media:upload"))])
+def delete_tag(
+    tid: int,
+    db: Session = Depends(get_db)
+):
+    """删除标签（只能删除未使用的标签）"""
+    tag = db.get(MediaTag, tid)
+    if not tag:
+        raise HTTPException(404, "标签不存在")
+    
+    # 检查是否有文件使用此标签
+    count = db.query(RelMediaFileTag).filter_by(tag_id=tid).count()
+    if count > 0:
+        raise HTTPException(400, f"标签正在被 {count} 个文件使用，无法删除")
+    
+    db.delete(tag)
+    db.commit()
+    return {"ok": True}
+
+
 @router.put("/{fid}/tags", dependencies=[Depends(require_perm("media:upload"))])
 def set_file_tags(
     fid: int,
@@ -189,29 +230,47 @@ def set_file_tags(
 ):
     """
     覆盖设置文件标签（传标签名数组），不存在的标签会自动创建
+    优化：批量查询和创建，减少数据库交互
     """
     f = db.get(MediaFile, fid)
     if not f:
         raise HTTPException(404, "文件不存在")
 
     names = [t.strip() for t in payload.tags if t and t.strip()]
+    
     # 清空旧关系
     db.query(RelMediaFileTag).filter(RelMediaFileTag.file_id == fid).delete()
 
-    tag_ids: List[int] = []
+    # 批量查询已存在的标签
+    existing_tags = db.query(MediaTag).filter(MediaTag.name.in_(names)).all()
+    existing_map = {tag.name: tag.id for tag in existing_tags}
+    
+    # 找出不存在的标签名
+    new_names = [name for name in names if name not in existing_map]
+    
+    # 批量创建新标签
+    new_tags = []
+    for name in new_names:
+        tag = MediaTag(name=name)
+        db.add(tag)
+        new_tags.append(tag)
+    
+    # 提交以获取新标签的ID
+    if new_tags:
+        db.flush()  # 获取ID但不提交事务
+        for tag in new_tags:
+            existing_map[tag.name] = tag.id
+    
+    # 批量创建关联关系
     for name in names:
-        tag = db.query(MediaTag).filter_by(name=name).first()
-        if not tag:
-            tag = MediaTag(name=name)
-            db.add(tag)
-            db.commit()
-            db.refresh(tag)
-        tag_ids.append(tag.id)
-        db.add(RelMediaFileTag(file_id=fid, tag_id=tag.id))
+        tag_id = existing_map.get(name)
+        if tag_id:
+            db.add(RelMediaFileTag(file_id=fid, tag_id=tag_id))
+    
     db.commit()
 
-    record_audit(db, fid, "rename", get_actor_id(user))  # 或自定义 "retag"
-    return {"ok": True, "tag_ids": tag_ids}
+    record_audit(db, fid, "set_tags", get_actor_id(user))
+    return {"ok": True, "tag_ids": list(existing_map.values())}
 
 
 # ---------------- 文件 上传/列表/删除/重命名/下载 ----------------
@@ -322,17 +381,34 @@ async def upload_file(
         db.commit()
         db.refresh(mf)
 
-        # 标签（可选）
+        # 标签（可选）- 优化：批量处理
         if tags:
             tag_names = [t.strip() for t in tags.split(",") if t.strip()]
-            for tn in tag_names:
-                tag = db.query(MediaTag).filter_by(name=tn).first()
-                if not tag:
-                    tag = MediaTag(name=tn)
-                    db.add(tag)
-                    db.commit()
-                    db.refresh(tag)
-                db.add(RelMediaFileTag(file_id=mf.id, tag_id=tag.id))
+            
+            # 批量查询已存在的标签
+            existing_tags = db.query(MediaTag).filter(MediaTag.name.in_(tag_names)).all()
+            existing_map = {tag.name: tag.id for tag in existing_tags}
+            
+            # 批量创建新标签
+            new_names = [name for name in tag_names if name not in existing_map]
+            new_tags = []
+            for name in new_names:
+                tag = MediaTag(name=name)
+                db.add(tag)
+                new_tags.append(tag)
+            
+            # 获取新标签ID
+            if new_tags:
+                db.flush()
+                for tag in new_tags:
+                    existing_map[tag.name] = tag.id
+            
+            # 批量创建关联
+            for name in tag_names:
+                tag_id = existing_map.get(name)
+                if tag_id:
+                    db.add(RelMediaFileTag(file_id=mf.id, tag_id=tag_id))
+            
             db.commit()
 
         record_audit(db, mf.id, "upload", get_actor_id(user))
@@ -528,6 +604,135 @@ def rename(
     db.commit()
     record_audit(db, fid, "rename", get_actor_id(user))
     return {"ok": True}
+
+
+# ---------------- 批量操作 ----------------
+
+@router.post("/batch/soft-delete", dependencies=[Depends(require_perm("media:delete"))])
+def batch_soft_delete(
+    file_ids: list[int],
+    db: Session = Depends(get_db),
+    user: Any = Depends(get_current_user)
+):
+    """批量软删除文件"""
+    if not file_ids:
+        raise HTTPException(400, "文件ID列表不能为空")
+    
+    files = db.query(MediaFile).filter(MediaFile.id.in_(file_ids)).all()
+    if not files:
+        raise HTTPException(404, "文件不存在")
+    
+    actor_id = get_actor_id(user)
+    for f in files:
+        if not f.deleted_at:
+            f.deleted_at = datetime.utcnow()
+            record_audit(db, f.id, "soft_delete", actor_id)
+    
+    db.commit()
+    return {"ok": True, "count": len(files)}
+
+
+@router.post("/batch/hard-delete", dependencies=[Depends(require_perm("media:delete"))])
+def batch_hard_delete(
+    file_ids: list[int],
+    db: Session = Depends(get_db),
+    user: Any = Depends(get_current_user)
+):
+    """批量硬删除文件"""
+    if not file_ids:
+        raise HTTPException(400, "文件ID列表不能为空")
+    
+    files = db.query(MediaFile).filter(MediaFile.id.in_(file_ids)).all()
+    if not files:
+        raise HTTPException(404, "文件不存在")
+    
+    upload_root = get_upload_root(db)
+    actor_id = get_actor_id(user)
+    deleted_count = 0
+    
+    for f in files:
+        # 删除物理文件
+        if f.storage == "local" and f.path:
+            abs_path = os.path.join(upload_root, f.path)
+            try:
+                if os.path.exists(abs_path):
+                    os.remove(abs_path)
+            except Exception as e:
+                print(f"删除物理文件失败 {abs_path}: {e}")
+        
+        # 删除标签关联
+        db.query(RelMediaFileTag).filter(RelMediaFileTag.file_id == f.id).delete()
+        
+        # 删除数据库记录
+        db.delete(f)
+        record_audit(db, f.id, "hard_delete", actor_id)
+        deleted_count += 1
+    
+    db.commit()
+    return {"ok": True, "count": deleted_count}
+
+
+@router.post("/batch/restore", dependencies=[Depends(require_perm("media:delete"))])
+def batch_restore(
+    file_ids: list[int],
+    db: Session = Depends(get_db),
+    user: Any = Depends(get_current_user)
+):
+    """批量恢复文件"""
+    if not file_ids:
+        raise HTTPException(400, "文件ID列表不能为空")
+    
+    files = db.query(MediaFile).filter(MediaFile.id.in_(file_ids)).all()
+    if not files:
+        raise HTTPException(404, "文件不存在")
+    
+    upload_root = get_upload_root(db)
+    actor_id = get_actor_id(user)
+    restored_count = 0
+    
+    for f in files:
+        # 检查物理文件是否存在
+        if f.storage == "local" and f.path:
+            abs_path = os.path.join(upload_root, f.path)
+            if not os.path.exists(abs_path):
+                continue  # 跳过物理文件不存在的
+        
+        f.deleted_at = None
+        record_audit(db, f.id, "restore", actor_id)
+        restored_count += 1
+    
+    db.commit()
+    return {"ok": True, "count": restored_count}
+
+
+@router.post("/batch/move", dependencies=[Depends(require_perm("media:upload"))])
+def batch_move(
+    file_ids: list[int],
+    dir_id: int | None,
+    db: Session = Depends(get_db),
+    user: Any = Depends(get_current_user)
+):
+    """批量移动文件到指定目录"""
+    if not file_ids:
+        raise HTTPException(400, "文件ID列表不能为空")
+    
+    # 验证目录是否存在（如果dir_id不为None）
+    if dir_id is not None:
+        dir = db.get(MediaDir, dir_id)
+        if not dir:
+            raise HTTPException(404, "目录不存在")
+    
+    files = db.query(MediaFile).filter(MediaFile.id.in_(file_ids)).all()
+    if not files:
+        raise HTTPException(404, "文件不存在")
+    
+    actor_id = get_actor_id(user)
+    for f in files:
+        f.dir_id = dir_id
+        record_audit(db, f.id, "move", actor_id)
+    
+    db.commit()
+    return {"ok": True, "count": len(files)}
 
 
 @router.get("/download/{sha256}")

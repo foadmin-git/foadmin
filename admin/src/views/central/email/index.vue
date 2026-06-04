@@ -42,7 +42,7 @@
               </el-form>
   
               <div class="text-center mt-6">
-                <el-button type="primary" size="large" @click="testConnection" :loading="testing">
+                <el-button type="primary" size="large" @click="testConnection" :loading="testing" v-demo-disable>
                   <el-icon class="mr-2"><Connection /></el-icon>
                   测试连接
                 </el-button>
@@ -95,7 +95,7 @@
               </el-form>
   
               <div class="text-center mt-6">
-                <el-button type="success" size="large" @click="sendTestEmail" :loading="sending">
+                <el-button type="success" size="large" @click="sendTestEmail" :loading="sending" v-demo-disable>
                   <el-icon class="mr-2"><Promotion /></el-icon>
                   发送测试邮件
                 </el-button>

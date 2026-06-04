@@ -30,7 +30,7 @@
           <el-checkbox v-model="q.include_child" :true-label="1" :false-label="0">含子级</el-checkbox>
           <el-button type="primary" @click="doSearch">搜索</el-button>
           <el-button @click="resetSearch">重置</el-button>
-          <el-button type="success" @click="openEdit()">新增</el-button>
+          <el-button type="success" @click="openEdit()" v-demo-disable>新增</el-button>
         </div>
       </div>
     </el-card>
@@ -48,12 +48,18 @@
           <el-tag :type="row.status ? 'success':'info'">{{ row.status ? '启用' : '停用' }}</el-tag>
         </template>
       </el-table-column>
+      <el-table-column prop="is_demo" label="类型" width="100">
+        <template #default="{ row }">
+          <el-tag v-if="row.is_demo" type="warning">演示账号</el-tag>
+          <el-tag v-else type="info">普通账号</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="320">
         <template #default="{ row }">
-          <el-button size="small" @click="openEdit(row)">编辑</el-button>
-          <el-button size="small" @click="openRoles(row)">角色</el-button>
+          <el-button size="small" @click="openEdit(row)" v-demo-disable>编辑</el-button>
+          <el-button size="small" @click="openRoles(row)" v-demo-disable>角色</el-button>
           <el-popconfirm title="确认删除？" @confirm="onDel(row)">
-            <template #reference><el-button size="small" type="danger">删除</el-button></template>
+            <template #reference><el-button size="small" type="danger" v-demo-disable>删除</el-button></template>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -100,10 +106,14 @@
         <el-form-item label="状态">
           <el-switch v-model="edit.status" :active-value="1" :inactive-value="0" />
         </el-form-item>
+        <el-form-item label="演示账号">
+          <el-switch v-model="edit.is_demo" :active-value="1" :inactive-value="0" />
+          <span class="text-gray-400 text-sm ml-2">演示账号只能查看，无法操作</span>
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showEdit=false">取消</el-button>
-        <el-button type="primary" @click="saveEdit">保存</el-button>
+        <el-button type="primary" @click="saveEdit" v-demo-disable>保存</el-button>
       </template>
     </el-dialog>
 
@@ -116,7 +126,7 @@
       </div>
       <template #footer>
         <el-button @click="showRoles=false">取消</el-button>
-        <el-button type="primary" @click="saveRoles">保存</el-button>
+        <el-button type="primary" @click="saveRoles" v-demo-disable>保存</el-button>
       </template>
     </el-dialog>
   </div>
@@ -198,15 +208,15 @@ onMounted(loadOptions)
 
 /* 编辑弹窗 */
 const showEdit = ref(false)
-const edit = reactive({ id:null, username:'', nick_name:'', password:'', dept_id:null, level_id:null, status:1 })
+const edit = reactive({ id:null, username:'', nick_name:'', password:'', dept_id:null, level_id:null, status:1, is_demo:0 })
 function openEdit(row){
   if(row){
     Object.assign(edit, {
       id: row.id, username: row.username, nick_name: row.nick_name,
-      password:'', dept_id: row.dept_id, level_id: row.level_id, status: row.status
+      password:'', dept_id: row.dept_id, level_id: row.level_id, status: row.status, is_demo: row.is_demo || 0
     })
   }else{
-    Object.assign(edit, { id:null, username:'', nick_name:'', password:'', dept_id:null, level_id:null, status:1 })
+    Object.assign(edit, { id:null, username:'', nick_name:'', password:'', dept_id:null, level_id:null, status:1, is_demo:0 })
   }
   showEdit.value = true
 }
@@ -216,7 +226,8 @@ async function saveEdit(){
     password: edit.password || undefined,
     dept_id: edit.dept_id || null,
     level_id: edit.level_id || null,
-    status: edit.status
+    status: edit.status,
+    is_demo: edit.is_demo
   }
   if(edit.id) await updateUser(edit.id, payload)
   else await createUser({ ...payload, username: edit.username })

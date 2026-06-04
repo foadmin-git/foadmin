@@ -11,6 +11,73 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* 主题色 CSS 变量 */
+  --theme-primary: #0031ff;
+  --theme-primary-light: #0093ff;
+  --theme-primary-dark: #0028d8;
+  --theme-primary-rgb: 0, 49, 255;
+  --theme-primary-light-rgb: 0, 147, 255;
+  --theme-primary-dark-rgb: 0, 40, 216;
+}
+
+/* 全局隐藏滚动条 - 整个后台系统（包括 Chrome） */
+*, *::before, *::after {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+*::-webkit-scrollbar {
+  width: 0px !important;
+  height: 0px !important;
+  display: none !important;
+  background: transparent !important;
+  -webkit-appearance: none !important;
+}
+
+*::-webkit-scrollbar-thumb {
+  display: none !important;
+  background: transparent !important;
+  -webkit-appearance: none !important;
+}
+
+*::-webkit-scrollbar-track {
+  display: none !important;
+  background: transparent !important;
+  -webkit-appearance: none !important;
+}
+
+*::-webkit-scrollbar-button {
+  display: none !important;
+  background: transparent !important;
+}
+
+*::-webkit-scrollbar-corner {
+  display: none !important;
+  background: transparent !important;
+}
+
+/* 确保可以滚动但不显示滚动条 */
+.el-drawer__body,
+.el-scrollbar__wrap,
+.el-table__body-wrapper,
+.el-select-dropdown__wrap,
+.el-cascader-menu__wrap {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.el-drawer__body::-webkit-scrollbar,
+.el-scrollbar__wrap::-webkit-scrollbar,
+.el-table__body-wrapper::-webkit-scrollbar,
+.el-select-dropdown__wrap::-webkit-scrollbar,
+.el-cascader-menu__wrap::-webkit-scrollbar {
+  width: 0px !important;
+  height: 0px !important;
+  display: none !important;
+  -webkit-appearance: none !important;
 }
 
 a {

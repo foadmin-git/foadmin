@@ -93,7 +93,7 @@ def verify_password(plain: str, hashed: str) -> bool:
         # 使用 passlib 验证其他格式
         return pwd.verify(plain, hashed)
 
-def create_token(sub: str, roles: list[str], perms: list[str], username: str = None):
+def create_token(sub: str, roles: list[str], perms: list[str], username: str = None, is_demo: bool = False):
     """
     创建JWT Token，过期时间从系统配置读取
     """
@@ -105,6 +105,7 @@ def create_token(sub: str, roles: list[str], perms: list[str], username: str = N
         "roles": roles,
         "perms": perms,
         "username": username,
+        "is_demo": is_demo,  # 演示账号标识
         "exp": datetime.now() + timedelta(minutes=int(expire_minutes)),
     }
     return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGO)

@@ -30,6 +30,7 @@ class UserOut(BaseModel):
     level_id: Optional[int] = None
     level_name: Optional[str] = None
     status: int
+    is_demo: int = 0  # 是否为演示账号 0=否 1=是
     avatar_file_id: Optional[int] = None
     avatar_url: Optional[str] = None
 
@@ -44,6 +45,7 @@ class UserCreate(BaseModel):
     dept_id: Optional[int] = None
     level_id: Optional[int] = None
     status: Optional[int] = 1
+    is_demo: Optional[int] = 0  # 是否为演示账号
     # 新增头像字段，创建用户时可选
     avatar_file_id: Optional[int] = None
     avatar_url: Optional[str] = None
@@ -57,6 +59,7 @@ class UserUpdate(BaseModel):
     dept_id: Optional[int] = None
     level_id: Optional[int] = None
     status: Optional[int] = None
+    is_demo: Optional[int] = None  # 是否为演示账号
     # 新增头像字段，更新用户时可选
     avatar_file_id: Optional[int] = None
     avatar_url: Optional[str] = None
@@ -95,6 +98,7 @@ def pack_user(u: User, d: Optional[SysDept], l: Optional[SysLevel]) -> UserOut:
         level_id=u.level_id,
         level_name=(l.name if l else None),
         status=u.status,
+        is_demo=u.is_demo or 0,
         avatar_file_id=u.avatar_file_id,
         avatar_url=u.avatar_url,
     )
@@ -167,6 +171,7 @@ def create_user(body: UserCreate, db: Session = Depends(get_db)):
         dept_id=body.dept_id,
         level_id=body.level_id,
         status=body.status if body.status is not None else 1,
+        is_demo=body.is_demo or 0,
         avatar_file_id=body.avatar_file_id,
         avatar_url=body.avatar_url,
     )
@@ -196,6 +201,8 @@ def update_user(uid: int, body: UserUpdate, db: Session = Depends(get_db)):
         u.level_id = body.level_id
     if body.status is not None:
         u.status = int(body.status)
+    if body.is_demo is not None:
+        u.is_demo = int(body.is_demo)
     if body.password:
         from app.core.security import hash_password, validate_password_complexity
         

@@ -50,21 +50,60 @@
       <el-icon v-if="isDark"><Sunny /></el-icon>
       <el-icon v-else><Moon /></el-icon>
     </button>
+
+    <!-- 主题设置按钮（桌面端） -->
+    <button @click="showThemePicker = true" class="ml-2 hidden md:block" title="主题设置">
+      <el-icon><Brush /></el-icon>
+    </button>
   </div>
+
+  <!-- 主题设置弹窗 -->
+  <ThemePicker v-model="showThemePicker" />
 </template>
 
 <script setup>
 import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ArrowLeft, ArrowRight, Close, Menu, FullScreen, Moon, Sunny } from '@element-plus/icons-vue'
+import { ArrowLeft, ArrowRight, Close, Menu, FullScreen, Moon, Sunny, Brush } from '@element-plus/icons-vue'
+import ThemePicker from '@/components/ThemePicker/index.vue'
 
 const router = useRouter()
 const route = useRoute()
 const tabs = ref(null)
 
-// 初始固定一个“控制台”
-const tabsList = ref([{ title: '控制台', path: '/dashboard' }])
-const activeTab = ref(tabsList.value[0])
+// 主题设置弹窗
+const showThemePicker = ref(false)
+
+// 初始固定一个"控制台"
+const defaultTabs = [{ title: '控制台', path: '/dashboard' }]
+
+// 从 localStorage 加载标签页
+function loadTabs() {
+  try {
+    const saved = localStorage.getItem('header-tabs')
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed
+      }
+    }
+  } catch (e) {
+    console.error('加载标签页失败:', e)
+  }
+  return defaultTabs
+}
+
+const tabsList = ref(loadTabs())
+const activeTab = ref(tabsList.value[0] || defaultTabs[0])
+
+// 保存标签页到 localStorage
+function saveTabs() {
+  try {
+    localStorage.setItem('header-tabs', JSON.stringify(tabsList.value))
+  } catch (e) {
+    console.error('保存标签页失败:', e)
+  }
+}
 
 /** 仅使用路由自身的元信息/名称/路径，不再用 document.title 兜底 */
 function titleOf(r) {
@@ -89,6 +128,7 @@ function activate(tab) {
 // 关闭标签并跳转到相邻标签
 function closeTab(i) {
   tabsList.value.splice(i, 1)
+  saveTabs() // 保存
   const newIndex = i < tabsList.value.length ? i : tabsList.value.length - 1
   const newTab = tabsList.value[newIndex]
   if (newTab) {
@@ -121,10 +161,8 @@ function stopDrag() { isDrag = false }
 // ============ 新增：全屏与暗黑模式切换 ============
 // 暗黑模式开关状态
 const isDark = ref(false)
-// 当前主题下激活标签的高亮颜色：
-// 深色模式下使用用户指定的亮蓝色 #0093ff，
-// 浅色模式保持自定义深蓝色
-const activeColor = computed(() => (isDark.value ? '#0093ff' : '#0031ff'))
+// 当前主题下激活标签的高亮颜色（使用 CSS 变量）
+const activeColor = computed(() => (isDark.value ? 'var(--theme-primary-light)' : 'var(--theme-primary)'))
 
 // 切换暗黑模式：在 html 元素上添加或移除 class "dark"
 function toggleDarkMode() {
@@ -164,7 +202,7 @@ function toggleFullscreen() {
   }
 }
 
-/** 路由变化：只给业务路由建标签；若已存在则更新标题（修正首次为“未找到/站点标题”的情况） */
+/** 路由变化：只给业务路由建标签；若已存在则更新标题（修正首次为"未找到/站点标题"的情况） */
 watch(
   () => route.fullPath,
   () => {
@@ -177,8 +215,10 @@ watch(
     const existing = tabsList.value.find(tab => tab.path === path)
     if (!existing) {
       tabsList.value.push({ title: newTitle, path })
+      saveTabs() // 保存
     } else if (existing.title !== newTitle) {
       existing.title = newTitle
+      saveTabs() // 保存
     }
     const current = tabsList.value.find(tab => tab.path === path)
     if (current) activeTab.value = current
